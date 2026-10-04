@@ -6,7 +6,7 @@ This script fixes Swift visibility errors by adding the 'public' keyword to:
 - All DTO enum declarations (e.g., enum SomeDto:)
 - All DTO struct declarations (e.g., struct SomeDto:)
 - HealthConnectorErrorDto error class
-- Base protocol declarations (MeasurementUnitDto, HealthRecordDto, DeleteRecordsRequestDto)
+- Base protocol declarations (MeasurementUnitDto, HealthRecordDto, AggregateRequestDto, DeleteRecordsRequestDto)
 - Hashable/Equatable protocol conformance methods (static func ==, func hash)
 
 This is necessary because Pigeon generates public protocols (like HealthConnectorHKIOSApi)
@@ -49,8 +49,8 @@ def add_public_keyword_to_swift_code(content: str) -> str:
             line = 'public ' + line
 
         # Add public to sealed base protocol declarations
-        # Match: protocol MeasurementUnitDto {, protocol HealthRecordDto {, protocol DeleteRecordsRequestDto {
-        elif re.match(r'^protocol (MeasurementUnitDto|HealthRecordDto|DeleteRecordsRequestDto) \{', line):
+        # Match the sealed DTO base protocols used in public API signatures.
+        elif re.match(r'^protocol (MeasurementUnitDto|HealthRecordDto|AggregateRequestDto|DeleteRecordsRequestDto) \{', line):
             line = 'public ' + line
 
         # Add public to static func == in structs (Equatable conformance)

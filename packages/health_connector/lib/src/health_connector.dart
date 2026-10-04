@@ -763,8 +763,13 @@ abstract interface class HealthConnector {
     List<R> records,
   );
 
-  /// Computes an aggregated value (sum, average, minimum, or maximum) over
-  /// all records of a specific type within the specified time range.
+  /// Computes an aggregated value using the supplied request.
+  ///
+  /// Requests normally aggregate a data type over a time range. Use
+  /// [ExerciseSessionDataType.aggregateActiveEnergyBurnedFor] to aggregate
+  /// active energy for a saved exercise session. On Android, this uses the
+  /// saved exercise session's time range and data origin, which can include
+  /// other active energy from that source during the same interval.
   ///
   /// ## Parameters
   ///
@@ -782,6 +787,8 @@ abstract interface class HealthConnector {
   ///   when read permission has not been granted.
   /// - [HealthConnectorException] with [HealthConnectorErrorCode.unknownError]
   ///   when an unexpected error occurs.
+  /// - [UnimplementedError] when aggregating active energy for an exercise
+  ///   session on iOS, where this operation is not implemented yet.
   ///
   /// ## Example
   ///

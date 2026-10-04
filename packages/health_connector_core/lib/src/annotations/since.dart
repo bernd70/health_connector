@@ -192,7 +192,7 @@ const sinceV3_9_0 = _Since('3.9.0');
 @internalUse
 const sinceV3_11_0 = _Since('3.11.0');
 
-/// Marks APIs added in version 3.11.2 of the SDK.
+/// Marks APIs added in version 3.12.0 of the SDK.
 ///
 @internalUse
-const sinceV3_11_2 = _Since('3.11.2');
+const sinceV3_12_0 = _Since('3.12.0');

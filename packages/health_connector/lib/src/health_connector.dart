@@ -769,7 +769,9 @@ abstract interface class HealthConnector {
   /// [ExerciseSessionDataType.aggregateActiveEnergyBurnedFor] to aggregate
   /// active energy for a saved exercise session. On Android, this uses the
   /// saved exercise session's time range and data origin, which can include
-  /// other active energy from that source during the same interval.
+  /// other active energy from that source during the same interval. On iOS,
+  /// this reads the saved workout's associated active energy
+  /// (`statistics(for:)` on iOS 16+, with `totalEnergyBurned` as fallback).
   ///
   /// ## Parameters
   ///
@@ -787,8 +789,9 @@ abstract interface class HealthConnector {
   ///   when read permission has not been granted.
   /// - [HealthConnectorException] with [HealthConnectorErrorCode.unknownError]
   ///   when an unexpected error occurs.
-  /// - [UnimplementedError] when aggregating active energy for an exercise
-  ///   session on iOS, where this operation is not implemented yet.
+  /// - [HealthConnectorException] with
+  ///   [HealthConnectorErrorCode.invalidArgument] when aggregating active
+  ///   energy for an exercise session whose saved record does not exist.
   ///
   /// ## Example
   ///

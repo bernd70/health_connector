@@ -123,11 +123,15 @@ final class ExerciseSessionDataType
   ///   over its saved time range, filtered to its data origin. Calorie records
   ///   are not linked to the exercise session, so other active energy from the
   ///   same source during that interval can be included.
-  /// - **iOS HealthKit**: Not implemented yet. Executing the request throws
-  ///   [UnimplementedError].
+  /// - **iOS HealthKit**: Reads the saved `HKWorkout` by UUID and returns its
+  ///   associated active energy. On iOS 16 and higher, prefers
+  ///   `HKWorkout.statistics(for:)` for `activeEnergyBurned`, then falls back
+  ///   to `totalEnergyBurned` when statistics are missing. On iOS 15, uses
+  ///   `totalEnergyBurned`. A missing workout raises an invalid-argument error.
   ///
   /// Requires [readPermission] and
   /// [HealthDataType.activeEnergyBurned]'s read permission on Android.
+  /// On iOS, requires workout read access.
   ///
   /// ## Parameters
   ///

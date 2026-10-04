@@ -2,6 +2,7 @@ import 'package:health_connector_core/health_connector_core_internal.dart';
 import 'package:health_connector_hc_android/src/mappers/health_data_type_mapper.dart';
 import 'package:health_connector_hc_android/src/mappers/health_record_mappers/activity_intensity/activity_intensity_type_mapper.dart';
 import 'package:health_connector_hc_android/src/mappers/request_and_response_mappers/aggregation_metric_mapper.dart';
+import 'package:health_connector_hc_android/src/mappers/request_and_response_mappers/exercise_session_active_energy_aggregate_request_mapper.dart';
 import 'package:health_connector_hc_android/src/pigeon/health_connector_hc_android_api.g.dart'
     show
         ActivityIntensityAggregateRequestDto,
@@ -18,6 +19,8 @@ extension AggregateRequestDtoMapper<U extends MeasurementUnit>
     on AggregateRequest<U> {
   AggregateRequestDto toDto() {
     switch (this) {
+      case final ExerciseSessionActiveEnergyAggregateRequest request:
+        return request.toDto();
       case StandardAggregateRequest _:
         return StandardAggregateRequestDto(
           dataType: dataType.toDto(),

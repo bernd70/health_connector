@@ -4,6 +4,7 @@ import com.phamtunglam.health_connector_hc_android.pigeon.ActivityIntensityAggre
 import com.phamtunglam.health_connector_hc_android.pigeon.AggregateRequestDto
 import com.phamtunglam.health_connector_hc_android.pigeon.AggregationMetricDto
 import com.phamtunglam.health_connector_hc_android.pigeon.BloodPressureAggregateRequestDto
+import com.phamtunglam.health_connector_hc_android.pigeon.ExerciseSessionActiveEnergyAggregateRequestDto
 import com.phamtunglam.health_connector_hc_android.pigeon.HealthDataTypeDto
 import com.phamtunglam.health_connector_hc_android.pigeon.StandardAggregateRequestDto
 
@@ -23,6 +24,7 @@ import com.phamtunglam.health_connector_hc_android.pigeon.StandardAggregateReque
  */
 internal val AggregateRequestDto.startTime: Long
     get() = when (this) {
+        is ExerciseSessionActiveEnergyAggregateRequestDto -> startTime
         is ActivityIntensityAggregateRequestDto -> startTime
         is StandardAggregateRequestDto -> startTime
         is BloodPressureAggregateRequestDto -> startTime
@@ -35,6 +37,7 @@ internal val AggregateRequestDto.startTime: Long
  */
 internal val AggregateRequestDto.endTime: Long
     get() = when (this) {
+        is ExerciseSessionActiveEnergyAggregateRequestDto -> endTime
         is ActivityIntensityAggregateRequestDto -> endTime
         is StandardAggregateRequestDto -> endTime
         is BloodPressureAggregateRequestDto -> endTime
@@ -47,6 +50,7 @@ internal val AggregateRequestDto.endTime: Long
  */
 internal val AggregateRequestDto.aggregationMetric: AggregationMetricDto
     get() = when (this) {
+        is ExerciseSessionActiveEnergyAggregateRequestDto -> AggregationMetricDto.SUM
         is ActivityIntensityAggregateRequestDto -> AggregationMetricDto.SUM
         is StandardAggregateRequestDto -> aggregationMetric
         is BloodPressureAggregateRequestDto -> aggregationMetric
@@ -62,6 +66,8 @@ internal val AggregateRequestDto.aggregationMetric: AggregationMetricDto
  */
 internal val AggregateRequestDto.dataType: HealthDataTypeDto
     get() = when (this) {
+        is ExerciseSessionActiveEnergyAggregateRequestDto ->
+            HealthDataTypeDto.ACTIVE_CALORIES_BURNED
         is ActivityIntensityAggregateRequestDto -> HealthDataTypeDto.ACTIVITY_INTENSITY
         is StandardAggregateRequestDto -> dataType
         is BloodPressureAggregateRequestDto -> HealthDataTypeDto.BLOOD_PRESSURE

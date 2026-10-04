@@ -6113,6 +6113,63 @@ class HealthConnectorLogDto {
   int get hashCode => Object.hashAll(_toList());
 }
 
+/// Request to aggregate active energy for a saved exercise session.
+class ExerciseSessionActiveEnergyAggregateRequestDto
+    extends AggregateRequestDto {
+  ExerciseSessionActiveEnergyAggregateRequestDto({
+    required this.exerciseSessionId,
+    required this.startTime,
+    required this.endTime,
+  });
+
+  /// The platform-assigned exercise session ID.
+  String exerciseSessionId;
+
+  /// Exercise session start in milliseconds since epoch (UTC), inclusive.
+  int startTime;
+
+  /// Exercise session end in milliseconds since epoch (UTC), exclusive.
+  int endTime;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      exerciseSessionId,
+      startTime,
+      endTime,
+    ];
+  }
+
+  Object encode() {
+    return _toList();
+  }
+
+  static ExerciseSessionActiveEnergyAggregateRequestDto decode(Object result) {
+    result as List<Object?>;
+    return ExerciseSessionActiveEnergyAggregateRequestDto(
+      exerciseSessionId: result[0]! as String,
+      startTime: result[1]! as int,
+      endTime: result[2]! as int,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! ExerciseSessionActiveEnergyAggregateRequestDto ||
+        other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(encode(), other.encode());
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => Object.hashAll(_toList());
+}
+
 class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
   @override
@@ -6438,6 +6495,9 @@ class _PigeonCodec extends StandardMessageCodec {
     } else if (value is HealthConnectorLogDto) {
       buffer.putUint8(234);
       writeValue(buffer, value.encode());
+    } else if (value is ExerciseSessionActiveEnergyAggregateRequestDto) {
+      buffer.putUint8(235);
+      writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
     }
@@ -6707,6 +6767,10 @@ class _PigeonCodec extends StandardMessageCodec {
         return HealthConnectorExceptionDto.decode(readValue(buffer)!);
       case 234:
         return HealthConnectorLogDto.decode(readValue(buffer)!);
+      case 235:
+        return ExerciseSessionActiveEnergyAggregateRequestDto.decode(
+          readValue(buffer)!,
+        );
       default:
         return super.readValueOfType(type, buffer);
     }

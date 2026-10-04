@@ -1,5 +1,11 @@
 import 'package:health_connector_core/health_connector_core_internal.dart'
-    show AggregateRequest, MeasurementUnit;
+    show
+        ActivityIntensityAggregateRequest,
+        AggregateRequest,
+        BloodPressureAggregateRequest,
+        ExerciseSessionActiveEnergyAggregateRequest,
+        MeasurementUnit,
+        StandardAggregateRequest;
 import 'package:health_connector_hk_ios/src/mappers/aggregation_metric_mapper.dart';
 import 'package:health_connector_hk_ios/src/mappers/health_data_type_mapper.dart';
 import 'package:health_connector_hk_ios/src/pigeon/health_connector_hk_ios_api.g.dart'
@@ -11,11 +17,23 @@ import 'package:meta/meta.dart' show internal;
 extension AggregateRequestDtoMapper<U extends MeasurementUnit>
     on AggregateRequest<U> {
   AggregateRequestDto toDto() {
-    return AggregateRequestDto(
-      dataType: dataType.toDto(),
-      aggregationMetric: aggregationMetric.toDto(),
-      startTime: startTime.millisecondsSinceEpoch,
-      endTime: endTime.millisecondsSinceEpoch,
-    );
+    switch (this) {
+      case ExerciseSessionActiveEnergyAggregateRequest():
+        // ignore: todo
+        // TODO(ptlam): Implement exercise session active energy aggregation.
+        throw UnimplementedError(
+          'Exercise session active energy aggregation is not implemented '
+          'on iOS yet.',
+        );
+      case StandardAggregateRequest():
+      case BloodPressureAggregateRequest():
+      case ActivityIntensityAggregateRequest():
+        return AggregateRequestDto(
+          dataType: dataType.toDto(),
+          aggregationMetric: aggregationMetric.toDto(),
+          startTime: startTime.millisecondsSinceEpoch,
+          endTime: endTime.millisecondsSinceEpoch,
+        );
+    }
   }
 }

@@ -2,13 +2,13 @@ import 'package:health_connector_core/health_connector_core_internal.dart'
     show
         ExerciseSessionActiveEnergyAggregateRequest,
         HealthRecordId,
-        sinceV3_11_2;
+        sinceV3_12_0;
 import 'package:health_connector_hc_android/src/pigeon/health_connector_hc_android_api.g.dart'
     show ExerciseSessionActiveEnergyAggregateRequestDto;
 import 'package:meta/meta.dart' show internal;
 
 /// Converts [ExerciseSessionActiveEnergyAggregateRequest] to its platform DTO.
-@sinceV3_11_2
+@sinceV3_12_0
 @internal
 extension ExerciseSessionActiveEnergyAggregateRequestDtoMapper
     on ExerciseSessionActiveEnergyAggregateRequest {
@@ -23,7 +23,7 @@ extension ExerciseSessionActiveEnergyAggregateRequestDtoMapper
 
 /// Converts [ExerciseSessionActiveEnergyAggregateRequestDto] to its
 /// domain model.
-@sinceV3_11_2
+@sinceV3_12_0
 @internal
 extension ExerciseSessionActiveEnergyAggregateRequestDomainMapper
     on ExerciseSessionActiveEnergyAggregateRequestDto {

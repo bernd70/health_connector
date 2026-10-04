@@ -3,7 +3,7 @@ part of 'aggregate_request.dart';
 /// Request to aggregate active energy burned for a saved exercise session.
 ///
 /// {@category Core API}
-@sinceV3_11_2
+@sinceV3_12_0
 @internalUse
 @immutable
 final class ExerciseSessionActiveEnergyAggregateRequest

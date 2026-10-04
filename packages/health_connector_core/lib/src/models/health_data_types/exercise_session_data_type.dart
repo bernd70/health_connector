@@ -153,7 +153,7 @@ final class ExerciseSessionDataType
   /// ```
   ///
   /// {@category Core API}
-  @sinceV3_11_2
+  @sinceV3_12_0
   AggregateRequest<Energy> aggregateActiveEnergyBurnedFor({
     required ExerciseSessionRecord exerciseSession,
   }) {

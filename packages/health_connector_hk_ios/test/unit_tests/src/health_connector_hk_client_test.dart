@@ -50,7 +50,7 @@ void main() {
         ),
       );
       registerFallbackValue(
-        AggregateRequestDto(
+        StandardAggregateRequestDto(
           dataType: HealthDataTypeDto.steps,
           startTime: 0,
           endTime: 1000,
@@ -677,6 +677,38 @@ void main() {
           group(
             'aggregate',
             () {
+              test(
+                'saved exercise session active energy returns kilocalories',
+                () async {
+                  // Given
+                  final request = HealthDataType.exerciseSession
+                      .aggregateActiveEnergyBurnedFor(
+                        exerciseSession: ExerciseSessionRecord(
+                          id: HealthRecordId(FakeData.fakeId),
+                          startTime: FakeData.fakeStartTime,
+                          endTime: FakeData.fakeEndTime,
+                          exerciseType: ExerciseType.running,
+                          metadata: Metadata.manualEntry(),
+                        ),
+                      );
+                  when(() => mockApi.aggregate(any())).thenAnswer(
+                    (_) async => 279.0,
+                  );
+
+                  // When
+                  final result = await client.aggregate(request);
+
+                  // Then
+                  expect(result, const Energy.kilocalories(279));
+                  final dto =
+                      verify(
+                            () => mockApi.aggregate(captureAny()),
+                          ).captured.single
+                          as ExerciseSessionActiveEnergyAggregateRequestDto;
+                  expect(dto.exerciseSessionId, FakeData.fakeId);
+                },
+              );
+
               test(
                 'returns aggregated value on success',
                 () async {

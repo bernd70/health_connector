@@ -227,10 +227,14 @@ public class HealthConnectorHkIosPlugin: NSObject, FlutterPlugin, HealthConnecto
         completion: @escaping (Result<Double, Error>) -> Void
     ) {
         let operation = "aggregate"
-        let context: [String: Any] = [
-            "data_type": request.dataType.rawValue,
-            "metrics": [request.aggregationMetric.rawValue],
-        ]
+        var context: [String: Any] = [:]
+        if let standardRequest = request as? StandardAggregateRequestDto {
+            context["data_type"] = standardRequest.dataType.rawValue
+            context["metrics"] = [standardRequest.aggregationMetric.rawValue]
+        } else if request is ExerciseSessionActiveEnergyAggregateRequestDto {
+            context["data_type"] = HealthDataTypeDto.activeCaloriesBurned.rawValue
+            context["metrics"] = [AggregationMetricDto.sum.rawValue]
+        }
 
         process(operation: operation, context: context, completion: completion) {
             try await self.healthClient.aggregate(request: request)

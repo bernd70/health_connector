@@ -226,6 +226,25 @@ extension ExerciseSessionHandler {
 // MARK: - Aggregation
 
 extension ExerciseSessionHandler {
+    /// Aggregates the active energy associated with a saved exercise session.
+    ///
+    /// The intended implementation reads the saved HealthKit workout by its UUID and returns
+    /// its associated active energy in kilocalories. A workout with no energy quantity returns zero.
+    ///
+    /// - Parameter exerciseSessionId: The platform-assigned UUID of the saved HealthKit workout.
+    /// - Returns: When implemented, total active energy in kilocalories, or zero when no energy is available.
+    func aggregateActiveEnergy(exerciseSessionId _: String) async throws -> Double {
+        // TODO: Implement workout lookup by `exerciseSessionId` and active energy aggregation using the handler's
+        // established validation and error-handling conventions.
+        //
+        // Support iOS 15 by using the deprecated `HKWorkout.totalEnergyBurned` API.
+        // On iOS 16 and higher, use the newer `HKWorkout.statistics(for:)` API for active energy for a workout.
+
+        throw HealthConnectorError.unsupportedOperation(
+            message: "Exercise session active energy aggregation is not implemented on iOS yet"
+        )
+    }
+
     /// Performs aggregation for exercise session records.
     ///
     /// Since HKWorkout doesn't support HKStatisticsQuery, we query all workout

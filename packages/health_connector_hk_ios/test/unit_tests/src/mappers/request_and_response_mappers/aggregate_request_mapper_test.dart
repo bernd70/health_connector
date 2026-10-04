@@ -12,15 +12,40 @@ void main() {
       group(
         'AggregateRequestDtoMapper',
         () {
+          test('maps a saved workout to an ID-only Pigeon request', () {
+            // Given
+            final AggregateRequest<Energy> request =
+                ExerciseSessionActiveEnergyAggregateRequest(
+                  exerciseSessionId: HealthRecordId(FakeData.fakeId),
+                  startTime: FakeData.fakeStartTime,
+                  endTime: FakeData.fakeEndTime,
+                );
+
+            // When
+            final dto = request.toDto();
+            const codec = HealthConnectorHKIOSApi.pigeonChannelCodec;
+            final decoded = codec.decodeMessage(codec.encodeMessage(dto));
+
+            // Then
+            expect(
+              decoded,
+              isA<ExerciseSessionActiveEnergyAggregateRequestDto>(),
+            );
+            final workoutDto =
+                decoded! as ExerciseSessionActiveEnergyAggregateRequestDto;
+            expect(workoutDto.exerciseSessionId, FakeData.fakeId);
+            expect(workoutDto.encode(), [FakeData.fakeId]);
+          });
+
           test(
-            'maps AggregateRequest for sum to AggregateRequestDto',
+            'maps AggregateRequest for sum to StandardAggregateRequestDto',
             () {
               final request = HealthDataType.steps.aggregateSum(
                 startTime: FakeData.fakeStartTime,
                 endTime: FakeData.fakeEndTime,
               );
 
-              final dto = request.toDto();
+              final dto = request.toDto() as StandardAggregateRequestDto;
 
               expect(dto.dataType, HealthDataTypeDto.steps);
               expect(dto.aggregationMetric, AggregationMetricDto.sum);
@@ -33,14 +58,14 @@ void main() {
           );
 
           test(
-            'maps AggregateRequest for average to AggregateRequestDto',
+            'maps AggregateRequest for average to StandardAggregateRequestDto',
             () {
               final request = HealthDataType.height.aggregateAvg(
                 startTime: FakeData.fakeStartTime,
                 endTime: FakeData.fakeEndTime,
               );
 
-              final dto = request.toDto();
+              final dto = request.toDto() as StandardAggregateRequestDto;
 
               expect(dto.dataType, HealthDataTypeDto.height);
               expect(dto.aggregationMetric, AggregationMetricDto.avg);
@@ -53,14 +78,14 @@ void main() {
           );
 
           test(
-            'maps AggregateRequest for min to AggregateRequestDto',
+            'maps AggregateRequest for min to StandardAggregateRequestDto',
             () {
               final request = HealthDataType.weight.aggregateMin(
                 startTime: FakeData.fakeStartTime,
                 endTime: FakeData.fakeEndTime,
               );
 
-              final dto = request.toDto();
+              final dto = request.toDto() as StandardAggregateRequestDto;
 
               expect(dto.dataType, HealthDataTypeDto.weight);
               expect(dto.aggregationMetric, AggregationMetricDto.min);
@@ -73,14 +98,14 @@ void main() {
           );
 
           test(
-            'maps AggregateRequest for max to AggregateRequestDto',
+            'maps AggregateRequest for max to StandardAggregateRequestDto',
             () {
               final request = HealthDataType.height.aggregateMax(
                 startTime: FakeData.fakeStartTime,
                 endTime: FakeData.fakeEndTime,
               );
 
-              final dto = request.toDto();
+              final dto = request.toDto() as StandardAggregateRequestDto;
 
               expect(dto.dataType, HealthDataTypeDto.height);
               expect(dto.aggregationMetric, AggregationMetricDto.max);

@@ -108,6 +108,9 @@ enum DevicePlacementSideDto {
 }
 
 /// Represents metadata for a health record.
+// Keep metadata on the heap: embedding it in every Swift record makes the
+// generated codec's debug stack frame too large for nested iOS responses.
+@SwiftClass()
 class MetadataDto {
   MetadataDto({
     required this.dataOrigin,

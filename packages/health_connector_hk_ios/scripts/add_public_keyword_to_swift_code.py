@@ -4,7 +4,7 @@ Script to add 'public' keyword to Swift Pigeon generated code.
 
 This script fixes Swift visibility errors by adding the 'public' keyword to:
 - All DTO enum declarations (e.g., enum SomeDto:)
-- All DTO struct declarations (e.g., struct SomeDto:)
+- All DTO struct and class declarations (e.g., struct SomeDto:)
 - HealthConnectorErrorDto error class
 - Base protocol declarations (MeasurementUnitDto, HealthRecordDto, AggregateRequestDto, DeleteRecordsRequestDto)
 - Hashable/Equatable protocol conformance methods (static func ==, func hash)
@@ -21,7 +21,7 @@ from pathlib import Path
 
 def add_public_keyword_to_swift_code(content: str) -> str:
     """
-    Add 'public' keyword to enums, structs, protocols, and their methods.
+    Add 'public' keyword to enums, structs, classes, protocols, and their methods.
 
     Args:
         content: The Swift file content
@@ -38,9 +38,9 @@ def add_public_keyword_to_swift_code(content: str) -> str:
         if re.match(r'^enum \w+Dto:', line):
             line = 'public ' + line
 
-        # Add public to DTO struct declarations
-        # Match: struct SomeDto: Hashable {
-        elif re.match(r'^struct \w+Dto:', line):
+        # Add public to DTO struct and @SwiftClass declarations
+        # Match: struct SomeDto: Hashable { or class SomeDto: Hashable {
+        elif re.match(r'^(?:struct|class) \w+Dto:', line):
             line = 'public ' + line
 
         # Add public to HealthConnectorErrorDto error class

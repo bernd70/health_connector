@@ -1054,7 +1054,9 @@ data class MetadataDto (
    * Unix timestamp in milliseconds since epoch (UTC).
    * Automatically maintained by Health Connect.
    */
-  val lastModifiedTime: Long? = null
+  val lastModifiedTime: Long? = null,
+  /** The source app's display name, when available. Ignored during writes. */
+  val dataOriginDisplayName: String? = null
 )
  {
   companion object {
@@ -1067,7 +1069,8 @@ data class MetadataDto (
       val deviceManufacturer = pigeonVar_list[5] as String?
       val deviceModel = pigeonVar_list[6] as String?
       val lastModifiedTime = pigeonVar_list[7] as Long?
-      return MetadataDto(clientRecordId, clientRecordVersion, dataOrigin, deviceType, recordingMethod, deviceManufacturer, deviceModel, lastModifiedTime)
+      val dataOriginDisplayName = pigeonVar_list[8] as String?
+      return MetadataDto(clientRecordId, clientRecordVersion, dataOrigin, deviceType, recordingMethod, deviceManufacturer, deviceModel, lastModifiedTime, dataOriginDisplayName)
     }
   }
   fun toList(): List<Any?> {
@@ -1080,6 +1083,7 @@ data class MetadataDto (
       deviceManufacturer,
       deviceModel,
       lastModifiedTime,
+      dataOriginDisplayName,
     )
   }
   override fun equals(other: Any?): Boolean {

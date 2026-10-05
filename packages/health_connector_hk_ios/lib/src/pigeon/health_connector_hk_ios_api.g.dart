@@ -1418,6 +1418,7 @@ class MetadataDto {
     this.deviceSoftwareVersion,
     this.deviceLocalIdentifier,
     this.deviceUdiDeviceIdentifier,
+    this.dataOriginDisplayName,
   });
 
   /// A custom identifier assigned by your application.
@@ -1464,6 +1465,10 @@ class MetadataDto {
   /// the data.
   String? deviceUdiDeviceIdentifier;
 
+  /// The HealthKit source's display name, when available.
+  /// Ignored during writes.
+  String? dataOriginDisplayName;
+
   List<Object?> _toList() {
     return <Object?>[
       clientRecordId,
@@ -1479,6 +1484,7 @@ class MetadataDto {
       deviceSoftwareVersion,
       deviceLocalIdentifier,
       deviceUdiDeviceIdentifier,
+      dataOriginDisplayName,
     ];
   }
 
@@ -1502,6 +1508,7 @@ class MetadataDto {
       deviceSoftwareVersion: result[10] as String?,
       deviceLocalIdentifier: result[11] as String?,
       deviceUdiDeviceIdentifier: result[12] as String?,
+      dataOriginDisplayName: result[13] as String?,
     );
   }
 

@@ -990,6 +990,7 @@ class MetadataDto {
     this.deviceManufacturer,
     this.deviceModel,
     this.lastModifiedTime,
+    this.dataOriginDisplayName,
   });
 
   /// A custom identifier assigned by your application.
@@ -1023,6 +1024,9 @@ class MetadataDto {
   /// Automatically maintained by Health Connect.
   int? lastModifiedTime;
 
+  /// The source app's display name, when available. Ignored during writes.
+  String? dataOriginDisplayName;
+
   List<Object?> _toList() {
     return <Object?>[
       clientRecordId,
@@ -1033,6 +1037,7 @@ class MetadataDto {
       deviceManufacturer,
       deviceModel,
       lastModifiedTime,
+      dataOriginDisplayName,
     ];
   }
 
@@ -1051,6 +1056,7 @@ class MetadataDto {
       deviceManufacturer: result[5] as String?,
       deviceModel: result[6] as String?,
       lastModifiedTime: result[7] as int?,
+      dataOriginDisplayName: result[8] as String?,
     );
   }
 

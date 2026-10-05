@@ -44,6 +44,7 @@ import com.phamtunglam.health_connector_hc_android.pigeon.PermissionStatusDto
 import com.phamtunglam.health_connector_hc_android.pigeon.ReadRecordRequestDto
 import com.phamtunglam.health_connector_hc_android.pigeon.ReadRecordsRequestDto
 import com.phamtunglam.health_connector_hc_android.pigeon.ReadRecordsResponseDto
+import com.phamtunglam.health_connector_hc_android.services.HealthConnectorDataOriginService
 import com.phamtunglam.health_connector_hc_android.services.HealthConnectorDataSyncService
 import com.phamtunglam.health_connector_hc_android.services.HealthConnectorFeatureService
 import com.phamtunglam.health_connector_hc_android.services.HealthConnectorManifestService
@@ -71,6 +72,7 @@ internal class HealthConnectorClient @VisibleForTesting internal constructor(
     private val permissionService: HealthConnectorPermissionService,
     private val syncService: HealthConnectorDataSyncService,
     private val recordHandlerRegistry: HealthRecordHandlerRegistry,
+    private val dataOriginService: HealthConnectorDataOriginService,
     /**
      * Whether the device supports Health Connect SDK Extension 21.
      *
@@ -95,6 +97,7 @@ internal class HealthConnectorClient @VisibleForTesting internal constructor(
             process("get_or_create") {
                 try {
                     val client = HealthConnectClient.getOrCreate(context)
+                    val packageManager = context.applicationContext.packageManager
                     val supportsExt21 = SdkExtensionUtils.isAtLeastSdkExtension21()
                     val manifestService = HealthConnectorManifestService(context)
                     val featureService = HealthConnectorFeatureService(client.features)
@@ -106,11 +109,6 @@ internal class HealthConnectorClient @VisibleForTesting internal constructor(
                         dispatcher = dispatchers.io,
                         client = client,
                     )
-                    val recordHandlerRegistry = HealthRecordHandlerRegistry(
-                        dispatchers = dispatchers,
-                        client = client,
-                    )
-
                     HealthConnectorClient(
                         dispatchers = dispatchers,
                         client = client,
@@ -118,7 +116,8 @@ internal class HealthConnectorClient @VisibleForTesting internal constructor(
                         featureService = featureService,
                         permissionService = permissionService,
                         syncService = syncService,
-                        recordHandlerRegistry = recordHandlerRegistry,
+                        recordHandlerRegistry = HealthRecordHandlerRegistry(dispatchers, client),
+                        dataOriginService = HealthConnectorDataOriginService(packageManager),
                         supportsHealthConnectSdkExtension21 = supportsExt21,
                     )
                 } catch (e: UnsupportedOperationException) {
@@ -486,7 +485,7 @@ internal class HealthConnectorClient @VisibleForTesting internal constructor(
                     context = context,
                 )
 
-                dto
+                dataOriginService.withDisplayName(dto)
             }
         }
 
@@ -544,7 +543,7 @@ internal class HealthConnectorClient @VisibleForTesting internal constructor(
                 )
 
                 ReadRecordsResponseDto(
-                    records = records,
+                    records = dataOriginService.withDisplayNames(records),
                     nextPageToken = nextPageToken,
                 )
             }
@@ -1008,7 +1007,9 @@ internal class HealthConnectorClient @VisibleForTesting internal constructor(
                 ),
             )
 
-            result
+            result.copy(
+                upsertedRecords = dataOriginService.withDisplayNames(result.upsertedRecords),
+            )
         }
     }
 

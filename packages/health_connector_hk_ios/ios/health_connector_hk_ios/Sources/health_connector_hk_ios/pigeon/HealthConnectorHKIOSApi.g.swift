@@ -1220,6 +1220,9 @@ public struct MetadataDto: Hashable {
   /// The UDI (Unique Device Identifier) for the device that recorded
   /// the data.
   var deviceUdiDeviceIdentifier: String? = nil
+  /// The HealthKit source's display name, when available.
+  /// Ignored during writes.
+  var dataOriginDisplayName: String? = nil
 
 
   // swift-format-ignore: AlwaysUseLowerCamelCase
@@ -1237,6 +1240,7 @@ public struct MetadataDto: Hashable {
     let deviceSoftwareVersion: String? = nilOrValue(pigeonVar_list[10])
     let deviceLocalIdentifier: String? = nilOrValue(pigeonVar_list[11])
     let deviceUdiDeviceIdentifier: String? = nilOrValue(pigeonVar_list[12])
+    let dataOriginDisplayName: String? = nilOrValue(pigeonVar_list[13])
 
     return MetadataDto(
       clientRecordId: clientRecordId,
@@ -1251,7 +1255,8 @@ public struct MetadataDto: Hashable {
       deviceFirmwareVersion: deviceFirmwareVersion,
       deviceSoftwareVersion: deviceSoftwareVersion,
       deviceLocalIdentifier: deviceLocalIdentifier,
-      deviceUdiDeviceIdentifier: deviceUdiDeviceIdentifier
+      deviceUdiDeviceIdentifier: deviceUdiDeviceIdentifier,
+      dataOriginDisplayName: dataOriginDisplayName
     )
   }
   func toList() -> [Any?] {
@@ -1269,6 +1274,7 @@ public struct MetadataDto: Hashable {
       deviceSoftwareVersion,
       deviceLocalIdentifier,
       deviceUdiDeviceIdentifier,
+      dataOriginDisplayName,
     ]
   }
   public static func == (lhs: MetadataDto, rhs: MetadataDto) -> Bool {

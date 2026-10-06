@@ -1,3 +1,10 @@
+## Unreleased
+
+- **FEAT**: Add `ExerciseSessionDataType.aggregateActiveEnergyBurnedFor` and
+  `ExerciseSessionActiveEnergyAggregateRequest` to aggregate active energy for
+  saved exercise sessions. Reject sessions without a saved record ID
+  ([#235](https://github.com/fam-tung-lam/health_connector/issues/235)).
+
 ## 3.10.1
 
 - **BUILD**: Bump the Dart SDK constraint from `^3.9.2` to `^3.10.0`, matching

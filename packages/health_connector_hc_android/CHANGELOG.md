@@ -1,3 +1,11 @@
+## Unreleased
+
+- **FEAT**: Aggregate active energy for saved exercise sessions using the
+  session's time range and data origin. Requires exercise session and active
+  energy read permissions. Other activity from the same source during that
+  interval can be included
+  ([#235](https://github.com/fam-tung-lam/health_connector/issues/235)).
+
 ## 3.8.1
 
 - **BUILD**: Bump the minimum Flutter version from 3.3.0 to 3.38.0 and the

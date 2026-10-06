@@ -1,3 +1,11 @@
+## Unreleased
+
+- **FEAT**: Read active energy associated with a saved workout using HealthKit
+  workout statistics on iOS 16 and later, with `totalEnergyBurned` as fallback.
+  Use `totalEnergyBurned` on iOS 15. Return zero when energy is missing and an
+  invalid-argument error when the workout does not exist
+  ([#235](https://github.com/fam-tung-lam/health_connector/issues/235)).
+
 ## 3.10.1
 
 - **BUILD**: Bump the minimum Flutter version from 3.3.0 to 3.38.0 and the

@@ -20,6 +20,7 @@ abstract final class AppTexts {
   static const String healthMetrics = 'Health Metrics';
   static const String quickActions = 'Quick Actions';
   static const String sdkOperations = 'SDK Operations';
+
   // Feature Descriptions
   static const String permissionsApiDescription =
       'Inspect permission status and platform access controls';
@@ -1478,6 +1479,11 @@ abstract final class AppTexts {
   static const String loadRoute = 'Load Route';
   static const String noRouteFound = 'No route found for this session';
   static const String routeDetails = 'Route Details';
+  static const String workoutActiveEnergy = 'Workout Active Energy';
+  static const String loadWorkoutActiveEnergy = 'Load Workout Active Energy';
+  static const String zeroWorkoutActiveEnergy =
+      'Zero may mean no active energy data is available for '
+      'this exercise session.';
   static const String totalPoints = 'Total Points';
   static const String altitude = 'Altitude';
   static const String horizontalAccuracy = 'H. Accuracy';

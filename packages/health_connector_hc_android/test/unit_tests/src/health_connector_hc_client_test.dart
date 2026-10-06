@@ -792,6 +792,40 @@ void main() {
             'aggregate',
             () {
               test(
+                'saved exercise session active energy returns kilocalories',
+                () async {
+                  // Given
+                  final request = HealthDataType.exerciseSession
+                      .aggregateActiveEnergyBurnedFor(
+                        exerciseSession: ExerciseSessionRecord(
+                          id: HealthRecordId(FakeData.fakeId),
+                          startTime: FakeData.fakeStartTime,
+                          endTime: FakeData.fakeEndTime,
+                          exerciseType: ExerciseType.running,
+                          metadata: Metadata.manualEntry(),
+                        ),
+                      );
+                  final requestDto =
+                      ExerciseSessionActiveEnergyAggregateRequestDto(
+                        exerciseSessionId: FakeData.fakeId,
+                        startTime:
+                            FakeData.fakeStartTime.millisecondsSinceEpoch,
+                        endTime: FakeData.fakeEndTime.millisecondsSinceEpoch,
+                      );
+                  when(() => mockApi.aggregate(requestDto)).thenAnswer(
+                    (_) async => 279.0,
+                  );
+
+                  // When
+                  final result = await client.aggregate(request);
+
+                  // Then
+                  expect(result, const Energy.kilocalories(279));
+                  verify(() => mockApi.aggregate(requestDto)).called(1);
+                },
+              );
+
+              test(
                 'returns aggregated value on success',
                 () async {
                   when(() => mockApi.aggregate(any())).thenAnswer(

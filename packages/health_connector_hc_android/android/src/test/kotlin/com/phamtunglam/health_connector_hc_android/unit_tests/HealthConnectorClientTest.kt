@@ -4,15 +4,24 @@ import androidx.health.connect.client.testing.FakeHealthConnectClient
 import androidx.health.connect.client.testing.FakePermissionController
 import com.phamtunglam.health_connector_hc_android.HealthConnectorClient
 import com.phamtunglam.health_connector_hc_android.exceptions.HealthConnectorException
+import com.phamtunglam.health_connector_hc_android.handlers.AggregatableHealthRecordHandler
 import com.phamtunglam.health_connector_hc_android.handlers.HealthRecordHandlerRegistry
+import com.phamtunglam.health_connector_hc_android.handlers.health_record_handlers.ExerciseSessionHandler
 import com.phamtunglam.health_connector_hc_android.logger.HealthConnectorLogger
+import com.phamtunglam.health_connector_hc_android.pigeon.ActivityIntensityAggregateRequestDto
+import com.phamtunglam.health_connector_hc_android.pigeon.AggregationMetricDto
+import com.phamtunglam.health_connector_hc_android.pigeon.BloodPressureAggregateRequestDto
+import com.phamtunglam.health_connector_hc_android.pigeon.BloodPressureDataTypeDto
 import com.phamtunglam.health_connector_hc_android.pigeon.DeviceTypeDto
 import com.phamtunglam.health_connector_hc_android.pigeon.ExerciseSegmentTypeDto
+import com.phamtunglam.health_connector_hc_android.pigeon.ExerciseSessionActiveEnergyAggregateRequestDto
 import com.phamtunglam.health_connector_hc_android.pigeon.ExerciseSessionRecordDto
 import com.phamtunglam.health_connector_hc_android.pigeon.ExerciseSessionSegmentEventDto
 import com.phamtunglam.health_connector_hc_android.pigeon.ExerciseTypeDto
+import com.phamtunglam.health_connector_hc_android.pigeon.HealthDataTypeDto
 import com.phamtunglam.health_connector_hc_android.pigeon.MetadataDto
 import com.phamtunglam.health_connector_hc_android.pigeon.RecordingMethodDto
+import com.phamtunglam.health_connector_hc_android.pigeon.StandardAggregateRequestDto
 import com.phamtunglam.health_connector_hc_android.services.HealthConnectorDataSyncService
 import com.phamtunglam.health_connector_hc_android.services.HealthConnectorFeatureService
 import com.phamtunglam.health_connector_hc_android.services.HealthConnectorManifestService
@@ -24,8 +33,14 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldNotBeEmpty
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.MockKAnnotations
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.confirmVerified
+import io.mockk.every
 import io.mockk.impl.annotations.RelaxedMockK
+import io.mockk.mockk
 import io.mockk.unmockkAll
+import io.mockk.verify
 import java.time.Instant
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -36,7 +51,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@DisplayName("HealthConnectorClient — exercise segment extended field validation")
+@DisplayName("HealthConnectorClient")
 @ExtendWith(MainDispatcherExtension::class)
 class HealthConnectorClientTest {
 
@@ -330,6 +345,155 @@ class HealthConnectorClientTest {
 
                 // Should not throw
                 client.updateRecords(records)
+            }
+    }
+
+    @Nested
+    @DisplayName("GIVEN aggregation request routing → ")
+    inner class Aggregate {
+        private lateinit var systemUnderTest: HealthConnectorClient
+        private lateinit var recordHandlerRegistry: HealthRecordHandlerRegistry
+
+        @BeforeEach
+        fun setUpClient() {
+            recordHandlerRegistry = mockk()
+            systemUnderTest = HealthConnectorClient(
+                dispatchers = TestDispatcherProvider(testDispatcher),
+                client = fakeHealthConnectClient,
+                manifestService = manifestService,
+                featureService = featureService,
+                permissionService = permissionService,
+                syncService = syncService,
+                recordHandlerRegistry = recordHandlerRegistry,
+                supportsHealthConnectSdkExtension21 = false,
+            )
+        }
+
+        @Test
+        @DisplayName(
+            "WHEN aggregating a standard request → THEN calls its aggregation handler",
+        )
+        fun `standard requests route to their data type handler`() = runTest(testDispatcher) {
+            // Given
+            val request = StandardAggregateRequestDto(
+                aggregationMetric = AggregationMetricDto.SUM,
+                dataType = HealthDataTypeDto.STEPS,
+                startTime = FIXED_NOW.minusSeconds(3600).toEpochMilli(),
+                endTime = FIXED_NOW.toEpochMilli(),
+            )
+            val handler = mockk<AggregatableHealthRecordHandler>()
+            every {
+                recordHandlerRegistry.getRecordHandler(HealthDataTypeDto.STEPS)
+            } returns handler
+            coEvery { handler.aggregate(request) } returns 5000.0
+
+            // When
+            val result = systemUnderTest.aggregate(request)
+
+            // Then
+            result shouldBe 5000.0
+            verify(exactly = 1) {
+                recordHandlerRegistry.getRecordHandler(HealthDataTypeDto.STEPS)
+            }
+            coVerify(exactly = 1) { handler.aggregate(request) }
+            confirmVerified(recordHandlerRegistry, handler)
+        }
+
+        @Test
+        @DisplayName(
+            "WHEN aggregating a blood pressure request → THEN calls its aggregation handler",
+        )
+        fun `blood pressure requests route to the blood pressure handler`() =
+            runTest(testDispatcher) {
+                // Given
+                val request = BloodPressureAggregateRequestDto(
+                    aggregationMetric = AggregationMetricDto.AVG,
+                    bloodPressureDataType = BloodPressureDataTypeDto.SYSTOLIC,
+                    startTime = FIXED_NOW.minusSeconds(3600).toEpochMilli(),
+                    endTime = FIXED_NOW.toEpochMilli(),
+                )
+                val handler = mockk<AggregatableHealthRecordHandler>()
+                every {
+                    recordHandlerRegistry.getRecordHandler(HealthDataTypeDto.BLOOD_PRESSURE)
+                } returns handler
+                coEvery { handler.aggregate(request) } returns 120.0
+
+                // When
+                val result = systemUnderTest.aggregate(request)
+
+                // Then
+                result shouldBe 120.0
+                verify(exactly = 1) {
+                    recordHandlerRegistry.getRecordHandler(HealthDataTypeDto.BLOOD_PRESSURE)
+                }
+                coVerify(exactly = 1) { handler.aggregate(request) }
+                confirmVerified(recordHandlerRegistry, handler)
+            }
+
+        @Test
+        @DisplayName(
+            "WHEN aggregating an activity intensity request → THEN calls its aggregation handler",
+        )
+        fun `activity intensity requests route to the activity intensity handler`() =
+            runTest(testDispatcher) {
+                // Given
+                val request = ActivityIntensityAggregateRequestDto(
+                    dataType = HealthDataTypeDto.ACTIVITY_INTENSITY,
+                    intensityType = null,
+                    startTime = FIXED_NOW.minusSeconds(3600).toEpochMilli(),
+                    endTime = FIXED_NOW.toEpochMilli(),
+                )
+                val handler = mockk<AggregatableHealthRecordHandler>()
+                every {
+                    recordHandlerRegistry.getRecordHandler(HealthDataTypeDto.ACTIVITY_INTENSITY)
+                } returns handler
+                coEvery { handler.aggregate(request) } returns 30.0
+
+                // When
+                val result = systemUnderTest.aggregate(request)
+
+                // Then
+                result shouldBe 30.0
+                verify(exactly = 1) {
+                    recordHandlerRegistry.getRecordHandler(HealthDataTypeDto.ACTIVITY_INTENSITY)
+                }
+                coVerify(exactly = 1) { handler.aggregate(request) }
+                confirmVerified(recordHandlerRegistry, handler)
+            }
+
+        @Test
+        @DisplayName(
+            "WHEN aggregating exercise session active energy → " +
+                "THEN calls the exercise session handler's active energy operation",
+        )
+        fun `active energy requests route to the exercise session handler`() =
+            runTest(testDispatcher) {
+                // Given
+                val request = ExerciseSessionActiveEnergyAggregateRequestDto(
+                    exerciseSessionId = "saved-exercise-session",
+                    startTime = FIXED_NOW.minusSeconds(3600).toEpochMilli(),
+                    endTime = FIXED_NOW.toEpochMilli(),
+                )
+                val handler = mockk<ExerciseSessionHandler>()
+                every {
+                    recordHandlerRegistry.getRecordHandler(HealthDataTypeDto.EXERCISE_SESSION)
+                } returns handler
+                coEvery {
+                    handler.aggregateActiveEnergy(request.exerciseSessionId)
+                } returns 279.0
+
+                // When
+                val result = systemUnderTest.aggregate(request)
+
+                // Then
+                result shouldBe 279.0
+                verify(exactly = 1) {
+                    recordHandlerRegistry.getRecordHandler(HealthDataTypeDto.EXERCISE_SESSION)
+                }
+                coVerify(exactly = 1) {
+                    handler.aggregateActiveEnergy(request.exerciseSessionId)
+                }
+                confirmVerified(recordHandlerRegistry, handler)
             }
     }
 

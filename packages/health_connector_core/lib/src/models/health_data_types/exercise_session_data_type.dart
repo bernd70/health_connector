@@ -114,6 +114,60 @@ final class ExerciseSessionDataType
   @override
   List<Permission> get permissions => [readPermission, writePermission];
 
+  /// Creates an active energy aggregation request for a saved exercise session.
+  ///
+  /// ## Platform Mapping
+  ///
+  /// - **Android Health Connect**: Reads the saved exercise session by ID.
+  ///   Sums `ActiveCaloriesBurnedRecord.ACTIVE_CALORIES_TOTAL`
+  ///   over its saved time range, filtered to its data origin. Calorie records
+  ///   are not linked to the exercise session, so other active energy from the
+  ///   same source during that interval can be included.
+  /// - **iOS HealthKit**: Reads the saved `HKWorkout` by UUID and returns its
+  ///   associated active energy. On iOS 16 and higher, prefers
+  ///   `HKWorkout.statistics(for:)` for `activeEnergyBurned`, then falls back
+  ///   to `totalEnergyBurned` when statistics are missing. On iOS 15, uses
+  ///   `totalEnergyBurned`. A missing workout raises an invalid-argument error.
+  ///
+  /// Requires [readPermission] and
+  /// [HealthDataType.activeEnergyBurned]'s read permission on Android.
+  /// On iOS, requires workout read access.
+  ///
+  /// ## Parameters
+  ///
+  /// - [exerciseSession]: A saved exercise session with a platform-assigned ID.
+  ///
+  /// ## Returns
+  ///
+  /// A request that produces [Energy] when passed to
+  /// `HealthConnector.aggregate()`. Missing active energy produces zero.
+  ///
+  /// ## Throws
+  ///
+  /// - [ArgumentError]: If [exerciseSession] has no saved record ID.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final request =
+  ///     HealthDataType.exerciseSession.aggregateActiveEnergyBurnedFor(
+  ///   exerciseSession: exerciseSession,
+  /// );
+  /// final Energy energy = await connector.aggregate(request);
+  /// ```
+  ///
+  /// {@category Core API}
+  @sinceV3_12_0
+  AggregateRequest<Energy> aggregateActiveEnergyBurnedFor({
+    required ExerciseSessionRecord exerciseSession,
+  }) {
+    return ExerciseSessionActiveEnergyAggregateRequest(
+      exerciseSessionId: exerciseSession.id,
+      startTime: exerciseSession.startTime,
+      endTime: exerciseSession.endTime,
+    );
+  }
+
   @override
   HealthDataTypeCategory get category => HealthDataTypeCategory.activity;
 

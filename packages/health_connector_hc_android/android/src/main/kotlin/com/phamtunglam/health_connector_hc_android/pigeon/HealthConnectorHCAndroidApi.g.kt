@@ -4773,6 +4773,47 @@ data class HealthConnectorLogDto (
 
   override fun hashCode(): Int = toList().hashCode()
 }
+
+/**
+ * Request to aggregate active energy for a saved exercise session.
+ *
+ * Generated class from Pigeon that represents data sent in messages.
+ */
+data class ExerciseSessionActiveEnergyAggregateRequestDto (
+  /** The platform-assigned exercise session ID. */
+  val exerciseSessionId: String,
+  /** Exercise session start in milliseconds since epoch (UTC), inclusive. */
+  val startTime: Long,
+  /** Exercise session end in milliseconds since epoch (UTC), exclusive. */
+  val endTime: Long
+) : AggregateRequestDto()
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): ExerciseSessionActiveEnergyAggregateRequestDto {
+      val exerciseSessionId = pigeonVar_list[0] as String
+      val startTime = pigeonVar_list[1] as Long
+      val endTime = pigeonVar_list[2] as Long
+      return ExerciseSessionActiveEnergyAggregateRequestDto(exerciseSessionId, startTime, endTime)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      exerciseSessionId,
+      startTime,
+      endTime,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other !is ExerciseSessionActiveEnergyAggregateRequestDto) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    return HealthConnectorHCAndroidApiPigeonUtils.deepEquals(toList(), other.toList())  }
+
+  override fun hashCode(): Int = toList().hashCode()
+}
 private open class HealthConnectorHCAndroidApiPigeonCodec : StandardMessageCodec() {
   override fun readValueOfType(type: Byte, buffer: ByteBuffer): Any? {
     return when (type) {
@@ -5306,6 +5347,11 @@ private open class HealthConnectorHCAndroidApiPigeonCodec : StandardMessageCodec
           HealthConnectorLogDto.fromList(it)
         }
       }
+      235.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          ExerciseSessionActiveEnergyAggregateRequestDto.fromList(it)
+        }
+      }
       else -> super.readValueOfType(type, buffer)
     }
   }
@@ -5733,6 +5779,10 @@ private open class HealthConnectorHCAndroidApiPigeonCodec : StandardMessageCodec
       }
       is HealthConnectorLogDto -> {
         stream.write(234)
+        writeValue(stream, value.toList())
+      }
+      is ExerciseSessionActiveEnergyAggregateRequestDto -> {
+        stream.write(235)
         writeValue(stream, value.toList())
       }
       else -> super.writeValue(stream, value)

@@ -88,6 +88,25 @@ final class ReadHealthRecordsChangeNotifier extends ChangeNotifier {
     }
   }
 
+  /// Aggregates active energy burned for the saved exercise session.
+  Future<Energy> aggregateExerciseSessionActiveEnergy(
+    ExerciseSessionRecord exerciseSession,
+  ) async {
+    notify(() {
+      _isLoading = true;
+    });
+
+    try {
+      final request = HealthDataType.exerciseSession
+          .aggregateActiveEnergyBurnedFor(exerciseSession: exerciseSession);
+      return await _healthConnector.aggregate(request);
+    } finally {
+      notify(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   /// Loads the next page of health records if available.
   ///
   /// Appends the new records to the existing [healthRecords] list.

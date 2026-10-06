@@ -6,6 +6,7 @@ import com.phamtunglam.health_connector_hc_android.logger.HealthConnectorLogger
 import com.phamtunglam.health_connector_hc_android.pigeon.HealthConnectorErrorCodeDto
 import com.phamtunglam.health_connector_hc_android.pigeon.HealthDataTypeDto
 import java.io.IOException
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
@@ -59,6 +60,8 @@ internal interface HealthRecordHandler {
     ): T = withContext(dispatcher) {
         try {
             return@withContext block()
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: SecurityException) {
             HealthConnectorLogger.error(
                 tag = tag,

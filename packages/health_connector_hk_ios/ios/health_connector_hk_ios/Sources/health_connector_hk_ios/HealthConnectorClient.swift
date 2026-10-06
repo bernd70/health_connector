@@ -617,59 +617,73 @@ actor HealthConnectorClient: Taggable {
         )
     }
 
-    /// Performs an aggregation query on health records.
+    /// Performs an aggregation query on health records or a saved exercise session.
     ///
-    /// - Parameter request: Contains data type, aggregation metric, and time range
-    /// - Returns: Double with the aggregated value
+    /// - Parameter request: A time-range request or a saved exercise session active energy request.
+    /// - Returns: The aggregated value in the data type's base unit.
     ///
-    /// - Throws: `HealthConnectorError` with code `INVALID_ARGUMENT` if time range or metric is invalid
-    /// - Throws: `HealthConnectorError` with code `PERMISSION_NOT_GRANTED` if authorization is denied
-    /// - Throws: `HealthConnectorError` with code `HEALTH_SERVICE_UNAVAILABLE` if HealthKit database is inaccessible
-    /// - Throws: `HealthConnectorError` with code `UNKNOWN_ERROR` if an unexpected error occurs
+    /// - Throws: `HealthConnectorError` with code `INVALID_ARGUMENT` if the time range, UUID, or metric is invalid.
+    /// - Throws: `HealthConnectorError` with code `UNSUPPORTED_OPERATION` if the request or handler is unsupported.
+    /// - Throws: `HealthConnectorError` with code `PERMISSION_NOT_GRANTED` if authorization is denied.
+    /// - Throws: `HealthConnectorError` with code `HEALTH_SERVICE_UNAVAILABLE` if HealthKit is inaccessible.
+    /// - Throws: `HealthConnectorError` with code `UNKNOWN_ERROR` if an unexpected error occurs.
     func aggregate(request: AggregateRequestDto) async throws -> Double {
-        try await process(
-            operation: "aggregate",
-            context: [
-                "data_type": request.dataType,
-                "metric_type": request.aggregationMetric,
-            ]
-        ) {
-            let operation = "aggregate"
-            let context: [String: Any] = [
-                "data_type": request.dataType,
-                "metric_type": request.aggregationMetric,
-            ]
+        let operation = "aggregate"
+        let standardRequest = request as? StandardAggregateRequestDto
+        let exerciseRequest = request as? ExerciseSessionActiveEnergyAggregateRequestDto
+        var context: [String: Any] = [:]
+        if let standardRequest {
+            context["data_type"] = standardRequest.dataType
+            context["metric_type"] = standardRequest.aggregationMetric
+        } else if exerciseRequest != nil {
+            context["data_type"] = HealthDataTypeDto.activeCaloriesBurned
+            context["metric_type"] = AggregationMetricDto.sum
+        }
 
-            HealthConnectorLogger.debug(
-                tag: Self.tag,
-                operation: operation,
-                message: "Aggregating HealthKit data",
-                context: context
-            )
+        HealthConnectorLogger.debug(
+            tag: Self.tag,
+            operation: operation,
+            message: "Aggregating HealthKit data",
+            context: context
+        )
 
-            if request.startTime >= request.endTime {
+        return try await process(operation: operation, context: context) {
+            if let standardRequest, standardRequest.startTime >= standardRequest.endTime {
                 throw HealthConnectorError.invalidArgument(
-                    message: "Invalid time range: startTime must be before endTime",
-                    context: [
-                        "details": "startTime=\(request.startTime), endTime=\(request.endTime)",
-                    ]
+                    message: "Invalid time range: startTime must be before endTime"
+                )
+            }
+            if let exerciseRequest, UUID(uuidString: exerciseRequest.exerciseSessionId) == nil {
+                throw HealthConnectorError.invalidArgument(
+                    message: "Invalid exercise session UUID"
                 )
             }
 
-            let handler = try handlerRegistry.handler(
-                for: request.dataType,
-                withCapability: AggregatableHealthRecordHandler.self
-            )
-
-            // Convert milliseconds since epoch to Date
-            let startTime = Date(millisecondsSince1970: request.startTime)
-            let endTime = Date(millisecondsSince1970: request.endTime)
-
-            let value = try await handler.aggregate(
-                metric: request.aggregationMetric,
-                startTime: startTime,
-                endTime: endTime
-            )
+            let value: Double
+            switch request {
+            case let exerciseRequest as ExerciseSessionActiveEnergyAggregateRequestDto:
+                let handler = try handlerRegistry.handler(
+                    for: .exerciseSession,
+                    withCapability: ExerciseSessionHandler.self
+                )
+                value = try await handler.aggregateActiveEnergy(
+                    exerciseSessionId: exerciseRequest.exerciseSessionId
+                )
+            case let standardRequest as StandardAggregateRequestDto:
+                let handler = try handlerRegistry.handler(
+                    for: standardRequest.dataType,
+                    withCapability: AggregatableHealthRecordHandler.self
+                )
+                value = try await handler.aggregate(
+                    metric: standardRequest.aggregationMetric,
+                    startTime: Date(millisecondsSince1970: standardRequest.startTime),
+                    endTime: Date(millisecondsSince1970: standardRequest.endTime)
+                )
+            default:
+                throw HealthConnectorError.unsupportedOperation(
+                    message: "Unsupported aggregation request type"
+                )
+            }
 
             HealthConnectorLogger.info(
                 tag: Self.tag,

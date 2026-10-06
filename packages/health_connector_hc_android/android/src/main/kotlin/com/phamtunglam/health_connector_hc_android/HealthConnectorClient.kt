@@ -16,6 +16,7 @@ import com.phamtunglam.health_connector_hc_android.handlers.HealthRecordHandlerR
 import com.phamtunglam.health_connector_hc_android.handlers.ReadableHealthRecordHandler
 import com.phamtunglam.health_connector_hc_android.handlers.UpdatableHealthRecordHandler
 import com.phamtunglam.health_connector_hc_android.handlers.WritableHealthRecordHandler
+import com.phamtunglam.health_connector_hc_android.handlers.health_record_handlers.ExerciseSessionHandler
 import com.phamtunglam.health_connector_hc_android.logger.HealthConnectorLogger
 import com.phamtunglam.health_connector_hc_android.mappers.health_record_mappers.dataType
 import com.phamtunglam.health_connector_hc_android.mappers.health_record_mappers.id
@@ -23,10 +24,13 @@ import com.phamtunglam.health_connector_hc_android.mappers.health_record_mappers
 import com.phamtunglam.health_connector_hc_android.mappers.health_record_mappers.toHealthConnect
 import com.phamtunglam.health_connector_hc_android.mappers.permission_mappers.toHealthConnectPermissionString
 import com.phamtunglam.health_connector_hc_android.mappers.toHealthPlatformStatusDto
+import com.phamtunglam.health_connector_hc_android.pigeon.ActivityIntensityAggregateRequestDto
 import com.phamtunglam.health_connector_hc_android.pigeon.AggregateRequestDto
+import com.phamtunglam.health_connector_hc_android.pigeon.BloodPressureAggregateRequestDto
 import com.phamtunglam.health_connector_hc_android.pigeon.DeleteRecordsByIdsRequestDto
 import com.phamtunglam.health_connector_hc_android.pigeon.DeleteRecordsByTimeRangeRequestDto
 import com.phamtunglam.health_connector_hc_android.pigeon.ExerciseRouteDto
+import com.phamtunglam.health_connector_hc_android.pigeon.ExerciseSessionActiveEnergyAggregateRequestDto
 import com.phamtunglam.health_connector_hc_android.pigeon.ExerciseSessionRecordDto
 import com.phamtunglam.health_connector_hc_android.pigeon.ExerciseSessionSegmentEventDto
 import com.phamtunglam.health_connector_hc_android.pigeon.HealthConnectorErrorCodeDto
@@ -44,6 +48,7 @@ import com.phamtunglam.health_connector_hc_android.pigeon.PermissionStatusDto
 import com.phamtunglam.health_connector_hc_android.pigeon.ReadRecordRequestDto
 import com.phamtunglam.health_connector_hc_android.pigeon.ReadRecordsRequestDto
 import com.phamtunglam.health_connector_hc_android.pigeon.ReadRecordsResponseDto
+import com.phamtunglam.health_connector_hc_android.pigeon.StandardAggregateRequestDto
 import com.phamtunglam.health_connector_hc_android.services.HealthConnectorDataSyncService
 import com.phamtunglam.health_connector_hc_android.services.HealthConnectorFeatureService
 import com.phamtunglam.health_connector_hc_android.services.HealthConnectorManifestService
@@ -935,17 +940,33 @@ internal class HealthConnectorClient @VisibleForTesting internal constructor(
         )
 
         return@withContext process(operation) {
-            val handler = recordHandlerRegistry.getRecordHandler(request.dataType)
-                ?: throw HealthConnectorException.UnsupportedOperation(
-                    message = "Data type ${request.dataType} does not support aggregation",
-                )
+            val responseDto = when (request) {
+                is ExerciseSessionActiveEnergyAggregateRequestDto -> {
+                    val handler = recordHandlerRegistry.getRecordHandler(
+                        HealthDataTypeDto.EXERCISE_SESSION,
+                    ) as? ExerciseSessionHandler
+                        ?: throw HealthConnectorException.UnsupportedOperation(
+                            message = "Exercise session handler is unavailable",
+                        )
+                    handler.aggregateActiveEnergy(exerciseSessionId = request.exerciseSessionId)
+                }
 
-            val responseDto = when (handler) {
-                is AggregatableHealthRecordHandler -> handler.aggregate(request)
+                is StandardAggregateRequestDto,
+                is BloodPressureAggregateRequestDto,
+                is ActivityIntensityAggregateRequestDto,
+                -> {
+                    val handler = recordHandlerRegistry.getRecordHandler(request.dataType)
+                        ?: throw HealthConnectorException.UnsupportedOperation(
+                            message = "Data type ${request.dataType} does not support aggregation",
+                        )
+                    when (handler) {
+                        is AggregatableHealthRecordHandler -> handler.aggregate(request)
 
-                else -> throw HealthConnectorException.UnsupportedOperation(
-                    message = "Type ${request.dataType} does not support aggregation",
-                )
+                        else -> throw HealthConnectorException.UnsupportedOperation(
+                            message = "Type ${request.dataType} does not support aggregation",
+                        )
+                    }
+                }
             }
 
             HealthConnectorLogger.info(

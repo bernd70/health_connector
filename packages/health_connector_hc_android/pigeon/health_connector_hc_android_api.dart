@@ -2894,6 +2894,25 @@ class HealthConnectorLogDto {
 
 // endregion
 
+/// Request to aggregate active energy for a saved exercise session.
+class ExerciseSessionActiveEnergyAggregateRequestDto
+    extends AggregateRequestDto {
+  ExerciseSessionActiveEnergyAggregateRequestDto({
+    required this.exerciseSessionId,
+    required this.startTime,
+    required this.endTime,
+  });
+
+  /// The platform-assigned exercise session ID.
+  final String exerciseSessionId;
+
+  /// Exercise session start in milliseconds since epoch (UTC), inclusive.
+  final int startTime;
+
+  /// Exercise session end in milliseconds since epoch (UTC), exclusive.
+  final int endTime;
+}
+
 /// FlutterApi for receiving log events from the native platform.
 ///
 /// This API is implemented on the Flutter side and called by the native

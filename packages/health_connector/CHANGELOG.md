@@ -1,3 +1,10 @@
+## Unreleased
+
+- **FEAT**: Add active energy aggregation for saved exercise sessions through
+  `HealthDataType.exerciseSession.aggregateActiveEnergyBurnedFor` and
+  `HealthConnector.aggregate`
+  ([#235](https://github.com/fam-tung-lam/health_connector/issues/235)).
+
 ## 3.11.1
 
 - **BUILD**: Bump the minimum Flutter version from 3.3.0 to 3.38.0 and the

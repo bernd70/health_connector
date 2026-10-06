@@ -10654,9 +10654,12 @@ class ExerciseRoutePermissionRequestResultDto
   int get hashCode => Object.hashAll(_toList());
 }
 
-/// Request to perform aggregation on health records.
-class AggregateRequestDto {
-  AggregateRequestDto({
+/// Sealed class for all aggregation request DTOs.
+sealed class AggregateRequestDto {}
+
+/// Request to perform aggregation on health records in a time range.
+class StandardAggregateRequestDto extends AggregateRequestDto {
+  StandardAggregateRequestDto({
     required this.aggregationMetric,
     required this.dataType,
     required this.endTime,
@@ -10688,9 +10691,9 @@ class AggregateRequestDto {
     return _toList();
   }
 
-  static AggregateRequestDto decode(Object result) {
+  static StandardAggregateRequestDto decode(Object result) {
     result as List<Object?>;
-    return AggregateRequestDto(
+    return StandardAggregateRequestDto(
       aggregationMetric: result[0]! as AggregationMetricDto,
       dataType: result[1]! as HealthDataTypeDto,
       endTime: result[2]! as int,
@@ -10701,7 +10704,53 @@ class AggregateRequestDto {
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
-    if (other is! AggregateRequestDto || other.runtimeType != runtimeType) {
+    if (other is! StandardAggregateRequestDto ||
+        other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(encode(), other.encode());
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => Object.hashAll(_toList());
+}
+
+/// Request to aggregate active energy for a saved exercise session.
+class ExerciseSessionActiveEnergyAggregateRequestDto
+    extends AggregateRequestDto {
+  ExerciseSessionActiveEnergyAggregateRequestDto({
+    required this.exerciseSessionId,
+  });
+
+  /// The platform-assigned exercise session ID (HealthKit workout UUID).
+  String exerciseSessionId;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      exerciseSessionId,
+    ];
+  }
+
+  Object encode() {
+    return _toList();
+  }
+
+  static ExerciseSessionActiveEnergyAggregateRequestDto decode(Object result) {
+    result as List<Object?>;
+    return ExerciseSessionActiveEnergyAggregateRequestDto(
+      exerciseSessionId: result[0]! as String,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! ExerciseSessionActiveEnergyAggregateRequestDto ||
+        other.runtimeType != runtimeType) {
       return false;
     }
     if (identical(this, other)) {
@@ -11684,32 +11733,34 @@ class _PigeonCodecOverflow {
       case 34:
         return ExerciseRoutePermissionRequestResultDto.decode(wrapped!);
       case 35:
-        return AggregateRequestDto.decode(wrapped!);
+        return StandardAggregateRequestDto.decode(wrapped!);
       case 36:
-        return DeleteRecordsByIdsRequestDto.decode(wrapped!);
+        return ExerciseSessionActiveEnergyAggregateRequestDto.decode(wrapped!);
       case 37:
-        return DeleteRecordsByTimeRangeRequestDto.decode(wrapped!);
+        return DeleteRecordsByIdsRequestDto.decode(wrapped!);
       case 38:
-        return ReadRecordRequestDto.decode(wrapped!);
+        return DeleteRecordsByTimeRangeRequestDto.decode(wrapped!);
       case 39:
-        return ReadRecordsRequestDto.decode(wrapped!);
+        return ReadRecordRequestDto.decode(wrapped!);
       case 40:
-        return ReadRecordsResponseDto.decode(wrapped!);
+        return ReadRecordsRequestDto.decode(wrapped!);
       case 41:
-        return HealthConnectorExceptionDto.decode(wrapped!);
+        return ReadRecordsResponseDto.decode(wrapped!);
       case 42:
-        return HealthConnectorLogDto.decode(wrapped!);
+        return HealthConnectorExceptionDto.decode(wrapped!);
       case 43:
-        return PeripheralPerfusionIndexRecordDto.decode(wrapped!);
+        return HealthConnectorLogDto.decode(wrapped!);
       case 44:
-        return PersistentIntermenstrualBleedingEventRecordDto.decode(wrapped!);
+        return PeripheralPerfusionIndexRecordDto.decode(wrapped!);
       case 45:
-        return ProlongedMenstrualPeriodEventRecordDto.decode(wrapped!);
+        return PersistentIntermenstrualBleedingEventRecordDto.decode(wrapped!);
       case 46:
-        return AtrialFibrillationBurdenRecordDto.decode(wrapped!);
+        return ProlongedMenstrualPeriodEventRecordDto.decode(wrapped!);
       case 47:
-        return NumberOfTimesFallenRecordDto.decode(wrapped!);
+        return AtrialFibrillationBurdenRecordDto.decode(wrapped!);
       case 48:
+        return NumberOfTimesFallenRecordDto.decode(wrapped!);
+      case 49:
         return AppleStandHourRecordDto.decode(wrapped!);
     }
     return null;
@@ -12346,100 +12397,107 @@ class _PigeonCodec extends StandardMessageCodec {
       );
       buffer.putUint8(255);
       writeValue(buffer, wrap.encode());
-    } else if (value is AggregateRequestDto) {
+    } else if (value is StandardAggregateRequestDto) {
       final _PigeonCodecOverflow wrap = _PigeonCodecOverflow(
         type: 35,
         wrapped: value.encode(),
       );
       buffer.putUint8(255);
       writeValue(buffer, wrap.encode());
-    } else if (value is DeleteRecordsByIdsRequestDto) {
+    } else if (value is ExerciseSessionActiveEnergyAggregateRequestDto) {
       final _PigeonCodecOverflow wrap = _PigeonCodecOverflow(
         type: 36,
         wrapped: value.encode(),
       );
       buffer.putUint8(255);
       writeValue(buffer, wrap.encode());
-    } else if (value is DeleteRecordsByTimeRangeRequestDto) {
+    } else if (value is DeleteRecordsByIdsRequestDto) {
       final _PigeonCodecOverflow wrap = _PigeonCodecOverflow(
         type: 37,
         wrapped: value.encode(),
       );
       buffer.putUint8(255);
       writeValue(buffer, wrap.encode());
-    } else if (value is ReadRecordRequestDto) {
+    } else if (value is DeleteRecordsByTimeRangeRequestDto) {
       final _PigeonCodecOverflow wrap = _PigeonCodecOverflow(
         type: 38,
         wrapped: value.encode(),
       );
       buffer.putUint8(255);
       writeValue(buffer, wrap.encode());
-    } else if (value is ReadRecordsRequestDto) {
+    } else if (value is ReadRecordRequestDto) {
       final _PigeonCodecOverflow wrap = _PigeonCodecOverflow(
         type: 39,
         wrapped: value.encode(),
       );
       buffer.putUint8(255);
       writeValue(buffer, wrap.encode());
-    } else if (value is ReadRecordsResponseDto) {
+    } else if (value is ReadRecordsRequestDto) {
       final _PigeonCodecOverflow wrap = _PigeonCodecOverflow(
         type: 40,
         wrapped: value.encode(),
       );
       buffer.putUint8(255);
       writeValue(buffer, wrap.encode());
-    } else if (value is HealthConnectorExceptionDto) {
+    } else if (value is ReadRecordsResponseDto) {
       final _PigeonCodecOverflow wrap = _PigeonCodecOverflow(
         type: 41,
         wrapped: value.encode(),
       );
       buffer.putUint8(255);
       writeValue(buffer, wrap.encode());
-    } else if (value is HealthConnectorLogDto) {
+    } else if (value is HealthConnectorExceptionDto) {
       final _PigeonCodecOverflow wrap = _PigeonCodecOverflow(
         type: 42,
         wrapped: value.encode(),
       );
       buffer.putUint8(255);
       writeValue(buffer, wrap.encode());
-    } else if (value is PeripheralPerfusionIndexRecordDto) {
+    } else if (value is HealthConnectorLogDto) {
       final _PigeonCodecOverflow wrap = _PigeonCodecOverflow(
         type: 43,
         wrapped: value.encode(),
       );
       buffer.putUint8(255);
       writeValue(buffer, wrap.encode());
-    } else if (value is PersistentIntermenstrualBleedingEventRecordDto) {
+    } else if (value is PeripheralPerfusionIndexRecordDto) {
       final _PigeonCodecOverflow wrap = _PigeonCodecOverflow(
         type: 44,
         wrapped: value.encode(),
       );
       buffer.putUint8(255);
       writeValue(buffer, wrap.encode());
-    } else if (value is ProlongedMenstrualPeriodEventRecordDto) {
+    } else if (value is PersistentIntermenstrualBleedingEventRecordDto) {
       final _PigeonCodecOverflow wrap = _PigeonCodecOverflow(
         type: 45,
         wrapped: value.encode(),
       );
       buffer.putUint8(255);
       writeValue(buffer, wrap.encode());
-    } else if (value is AtrialFibrillationBurdenRecordDto) {
+    } else if (value is ProlongedMenstrualPeriodEventRecordDto) {
       final _PigeonCodecOverflow wrap = _PigeonCodecOverflow(
         type: 46,
         wrapped: value.encode(),
       );
       buffer.putUint8(255);
       writeValue(buffer, wrap.encode());
-    } else if (value is NumberOfTimesFallenRecordDto) {
+    } else if (value is AtrialFibrillationBurdenRecordDto) {
       final _PigeonCodecOverflow wrap = _PigeonCodecOverflow(
         type: 47,
         wrapped: value.encode(),
       );
       buffer.putUint8(255);
       writeValue(buffer, wrap.encode());
-    } else if (value is AppleStandHourRecordDto) {
+    } else if (value is NumberOfTimesFallenRecordDto) {
       final _PigeonCodecOverflow wrap = _PigeonCodecOverflow(
         type: 48,
+        wrapped: value.encode(),
+      );
+      buffer.putUint8(255);
+      writeValue(buffer, wrap.encode());
+    } else if (value is AppleStandHourRecordDto) {
+      final _PigeonCodecOverflow wrap = _PigeonCodecOverflow(
+        type: 49,
         wrapped: value.encode(),
       );
       buffer.putUint8(255);

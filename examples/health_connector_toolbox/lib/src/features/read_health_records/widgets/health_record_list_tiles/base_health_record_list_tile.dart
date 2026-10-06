@@ -33,8 +33,7 @@ final class BaseHealthRecordListTile extends StatefulWidget {
   final List<Widget> detailRows;
   final Metadata metadata;
 
-  /// Optional action widgets to display in the trailing section before
-  /// the delete button.
+  /// Optional action widgets displayed before the expansion indicator.
   final List<Widget>? actions;
   final VoidCallback? onDelete;
 
@@ -64,6 +63,12 @@ class _BaseHealthRecordListTileState extends State<BaseHealthRecordListTile> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final title = Text(
+      widget.title,
+      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+        fontWeight: FontWeight.w600,
+      ),
+    );
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -87,17 +92,36 @@ class _BaseHealthRecordListTileState extends State<BaseHealthRecordListTile> {
             size: 24,
           ),
         ),
-        title: Text(
-          widget.title,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        subtitle: widget.subtitle,
+        title: widget.actions == null
+            ? title
+            : Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        title,
+                        DefaultTextStyle.merge(
+                          style:
+                              Theme.of(
+                                context,
+                              ).listTileTheme.subtitleTextStyle ??
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                          child: widget.subtitle,
+                        ),
+                      ],
+                    ),
+                  ),
+                  ...widget.actions!,
+                ],
+              ),
+        subtitle: widget.actions == null ? widget.subtitle : null,
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (widget.actions != null) ...widget.actions!,
             if (widget.onDelete != null)
               IconButton(
                 icon: Icon(

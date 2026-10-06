@@ -7850,10 +7850,18 @@ public struct ExerciseRoutePermissionRequestResultDto: PermissionRequestResultDt
   }
 }
 
-/// Request to perform aggregation on health records.
+/// Sealed class for all aggregation request DTOs.
 ///
 /// Generated class from Pigeon that represents data sent in messages.
-public struct AggregateRequestDto: Hashable {
+/// This protocol should not be extended by any user class outside of the generated file.
+public protocol AggregateRequestDto {
+
+}
+
+/// Request to perform aggregation on health records in a time range.
+///
+/// Generated class from Pigeon that represents data sent in messages.
+public struct StandardAggregateRequestDto: AggregateRequestDto {
   /// The type of aggregation to perform.
   var aggregationMetric: AggregationMetricDto
   /// The type of health data to aggregate.
@@ -7865,13 +7873,13 @@ public struct AggregateRequestDto: Hashable {
 
 
   // swift-format-ignore: AlwaysUseLowerCamelCase
-  static func fromList(_ pigeonVar_list: [Any?]) -> AggregateRequestDto? {
+  static func fromList(_ pigeonVar_list: [Any?]) -> StandardAggregateRequestDto? {
     let aggregationMetric = pigeonVar_list[0] as! AggregationMetricDto
     let dataType = pigeonVar_list[1] as! HealthDataTypeDto
     let endTime = pigeonVar_list[2] as! Int64
     let startTime = pigeonVar_list[3] as! Int64
 
-    return AggregateRequestDto(
+    return StandardAggregateRequestDto(
       aggregationMetric: aggregationMetric,
       dataType: dataType,
       endTime: endTime,
@@ -7886,7 +7894,35 @@ public struct AggregateRequestDto: Hashable {
       startTime,
     ]
   }
-  public static func == (lhs: AggregateRequestDto, rhs: AggregateRequestDto) -> Bool {
+  public static func == (lhs: StandardAggregateRequestDto, rhs: StandardAggregateRequestDto) -> Bool {
+    return deepEqualsHealthConnectorHKIOSApi(lhs.toList(), rhs.toList())  }
+  public func hash(into hasher: inout Hasher) {
+    deepHashHealthConnectorHKIOSApi(value: toList(), hasher: &hasher)
+  }
+}
+
+/// Request to aggregate active energy for a saved exercise session.
+///
+/// Generated class from Pigeon that represents data sent in messages.
+public struct ExerciseSessionActiveEnergyAggregateRequestDto: AggregateRequestDto {
+  /// The platform-assigned exercise session ID (HealthKit workout UUID).
+  var exerciseSessionId: String
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> ExerciseSessionActiveEnergyAggregateRequestDto? {
+    let exerciseSessionId = pigeonVar_list[0] as! String
+
+    return ExerciseSessionActiveEnergyAggregateRequestDto(
+      exerciseSessionId: exerciseSessionId
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      exerciseSessionId
+    ]
+  }
+  public static func == (lhs: ExerciseSessionActiveEnergyAggregateRequestDto, rhs: ExerciseSessionActiveEnergyAggregateRequestDto) -> Bool {
     return deepEqualsHealthConnectorHKIOSApi(lhs.toList(), rhs.toList())  }
   public func hash(into hasher: inout Hasher) {
     deepHashHealthConnectorHKIOSApi(value: toList(), hasher: &hasher)
@@ -8615,32 +8651,34 @@ private struct PigeonInternalCodecOverflow {
       case 34:
         return ExerciseRoutePermissionRequestResultDto.fromList(wrapped as! [Any?]);
       case 35:
-        return AggregateRequestDto.fromList(wrapped as! [Any?]);
+        return StandardAggregateRequestDto.fromList(wrapped as! [Any?]);
       case 36:
-        return DeleteRecordsByIdsRequestDto.fromList(wrapped as! [Any?]);
+        return ExerciseSessionActiveEnergyAggregateRequestDto.fromList(wrapped as! [Any?]);
       case 37:
-        return DeleteRecordsByTimeRangeRequestDto.fromList(wrapped as! [Any?]);
+        return DeleteRecordsByIdsRequestDto.fromList(wrapped as! [Any?]);
       case 38:
-        return ReadRecordRequestDto.fromList(wrapped as! [Any?]);
+        return DeleteRecordsByTimeRangeRequestDto.fromList(wrapped as! [Any?]);
       case 39:
-        return ReadRecordsRequestDto.fromList(wrapped as! [Any?]);
+        return ReadRecordRequestDto.fromList(wrapped as! [Any?]);
       case 40:
-        return ReadRecordsResponseDto.fromList(wrapped as! [Any?]);
+        return ReadRecordsRequestDto.fromList(wrapped as! [Any?]);
       case 41:
-        return HealthConnectorExceptionDto.fromList(wrapped as! [Any?]);
+        return ReadRecordsResponseDto.fromList(wrapped as! [Any?]);
       case 42:
-        return HealthConnectorLogDto.fromList(wrapped as! [Any?]);
+        return HealthConnectorExceptionDto.fromList(wrapped as! [Any?]);
       case 43:
-        return PeripheralPerfusionIndexRecordDto.fromList(wrapped as! [Any?]);
+        return HealthConnectorLogDto.fromList(wrapped as! [Any?]);
       case 44:
-        return PersistentIntermenstrualBleedingEventRecordDto.fromList(wrapped as! [Any?]);
+        return PeripheralPerfusionIndexRecordDto.fromList(wrapped as! [Any?]);
       case 45:
-        return ProlongedMenstrualPeriodEventRecordDto.fromList(wrapped as! [Any?]);
+        return PersistentIntermenstrualBleedingEventRecordDto.fromList(wrapped as! [Any?]);
       case 46:
-        return AtrialFibrillationBurdenRecordDto.fromList(wrapped as! [Any?]);
+        return ProlongedMenstrualPeriodEventRecordDto.fromList(wrapped as! [Any?]);
       case 47:
-        return NumberOfTimesFallenRecordDto.fromList(wrapped as! [Any?]);
+        return AtrialFibrillationBurdenRecordDto.fromList(wrapped as! [Any?]);
       case 48:
+        return NumberOfTimesFallenRecordDto.fromList(wrapped as! [Any?]);
+      case 49:
         return AppleStandHourRecordDto.fromList(wrapped as! [Any?]);
       default: 
         return nil
@@ -9575,60 +9613,64 @@ private class HealthConnectorHKIOSApiPigeonCodecWriter: FlutterStandardWriter {
       let wrap = PigeonInternalCodecOverflow(type: 34, wrapped: value.toList())
       super.writeByte(255)
       super.writeValue(wrap.toList())
-    } else if let value = value as? AggregateRequestDto {
+    } else if let value = value as? StandardAggregateRequestDto {
       let wrap = PigeonInternalCodecOverflow(type: 35, wrapped: value.toList())
       super.writeByte(255)
       super.writeValue(wrap.toList())
-    } else if let value = value as? DeleteRecordsByIdsRequestDto {
+    } else if let value = value as? ExerciseSessionActiveEnergyAggregateRequestDto {
       let wrap = PigeonInternalCodecOverflow(type: 36, wrapped: value.toList())
       super.writeByte(255)
       super.writeValue(wrap.toList())
-    } else if let value = value as? DeleteRecordsByTimeRangeRequestDto {
+    } else if let value = value as? DeleteRecordsByIdsRequestDto {
       let wrap = PigeonInternalCodecOverflow(type: 37, wrapped: value.toList())
       super.writeByte(255)
       super.writeValue(wrap.toList())
-    } else if let value = value as? ReadRecordRequestDto {
+    } else if let value = value as? DeleteRecordsByTimeRangeRequestDto {
       let wrap = PigeonInternalCodecOverflow(type: 38, wrapped: value.toList())
       super.writeByte(255)
       super.writeValue(wrap.toList())
-    } else if let value = value as? ReadRecordsRequestDto {
+    } else if let value = value as? ReadRecordRequestDto {
       let wrap = PigeonInternalCodecOverflow(type: 39, wrapped: value.toList())
       super.writeByte(255)
       super.writeValue(wrap.toList())
-    } else if let value = value as? ReadRecordsResponseDto {
+    } else if let value = value as? ReadRecordsRequestDto {
       let wrap = PigeonInternalCodecOverflow(type: 40, wrapped: value.toList())
       super.writeByte(255)
       super.writeValue(wrap.toList())
-    } else if let value = value as? HealthConnectorExceptionDto {
+    } else if let value = value as? ReadRecordsResponseDto {
       let wrap = PigeonInternalCodecOverflow(type: 41, wrapped: value.toList())
       super.writeByte(255)
       super.writeValue(wrap.toList())
-    } else if let value = value as? HealthConnectorLogDto {
+    } else if let value = value as? HealthConnectorExceptionDto {
       let wrap = PigeonInternalCodecOverflow(type: 42, wrapped: value.toList())
       super.writeByte(255)
       super.writeValue(wrap.toList())
-    } else if let value = value as? PeripheralPerfusionIndexRecordDto {
+    } else if let value = value as? HealthConnectorLogDto {
       let wrap = PigeonInternalCodecOverflow(type: 43, wrapped: value.toList())
       super.writeByte(255)
       super.writeValue(wrap.toList())
-    } else if let value = value as? PersistentIntermenstrualBleedingEventRecordDto {
+    } else if let value = value as? PeripheralPerfusionIndexRecordDto {
       let wrap = PigeonInternalCodecOverflow(type: 44, wrapped: value.toList())
       super.writeByte(255)
       super.writeValue(wrap.toList())
-    } else if let value = value as? ProlongedMenstrualPeriodEventRecordDto {
+    } else if let value = value as? PersistentIntermenstrualBleedingEventRecordDto {
       let wrap = PigeonInternalCodecOverflow(type: 45, wrapped: value.toList())
       super.writeByte(255)
       super.writeValue(wrap.toList())
-    } else if let value = value as? AtrialFibrillationBurdenRecordDto {
+    } else if let value = value as? ProlongedMenstrualPeriodEventRecordDto {
       let wrap = PigeonInternalCodecOverflow(type: 46, wrapped: value.toList())
       super.writeByte(255)
       super.writeValue(wrap.toList())
-    } else if let value = value as? NumberOfTimesFallenRecordDto {
+    } else if let value = value as? AtrialFibrillationBurdenRecordDto {
       let wrap = PigeonInternalCodecOverflow(type: 47, wrapped: value.toList())
       super.writeByte(255)
       super.writeValue(wrap.toList())
-    } else if let value = value as? AppleStandHourRecordDto {
+    } else if let value = value as? NumberOfTimesFallenRecordDto {
       let wrap = PigeonInternalCodecOverflow(type: 48, wrapped: value.toList())
+      super.writeByte(255)
+      super.writeValue(wrap.toList())
+    } else if let value = value as? AppleStandHourRecordDto {
+      let wrap = PigeonInternalCodecOverflow(type: 49, wrapped: value.toList())
       super.writeByte(255)
       super.writeValue(wrap.toList())
     } else {

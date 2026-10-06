@@ -3,6 +3,8 @@ import 'package:health_connector_core/health_connector_core_internal.dart';
 import 'package:health_connector_hc_android/src/mappers/request_and_response_mappers/aggregate_request_mapper.dart';
 import 'package:health_connector_hc_android/src/pigeon/health_connector_hc_android_api.g.dart';
 
+import '../../../utils/fake_data.dart';
+
 void main() {
   group(
     'AggregateRequestMapper',
@@ -13,6 +15,35 @@ void main() {
       group(
         'AggregateRequestDtoMapper',
         () {
+          test(
+            'saved exercise session maps to the specialized active energy DTO',
+            () {
+              // Given
+              final request = HealthDataType.exerciseSession
+                  .aggregateActiveEnergyBurnedFor(
+                    exerciseSession: ExerciseSessionRecord(
+                      id: HealthRecordId(FakeData.fakeId),
+                      startTime: FakeData.fakeStartTime,
+                      endTime: FakeData.fakeEndTime,
+                      exerciseType: ExerciseType.running,
+                      metadata: Metadata.manualEntry(),
+                    ),
+                  );
+
+              // When
+              final dto =
+                  request.toDto()
+                      as ExerciseSessionActiveEnergyAggregateRequestDto;
+
+              // Then
+              expect(dto.exerciseSessionId, FakeData.fakeId);
+              expect(
+                dto.startTime,
+                FakeData.fakeStartTime.millisecondsSinceEpoch,
+              );
+              expect(dto.endTime, FakeData.fakeEndTime.millisecondsSinceEpoch);
+            },
+          );
           test(
             'maps CommonAggregateRequest to StandardAggregateRequestDto',
             () {

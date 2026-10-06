@@ -7,6 +7,7 @@ import 'package:health_connector_toolbox/src/common/utils/extensions/exercise_st
 import 'package:health_connector_toolbox/src/common/utils/show_app_snack_bar.dart';
 import 'package:health_connector_toolbox/src/features/read_health_records/read_health_records_change_notifier.dart';
 import 'package:health_connector_toolbox/src/features/read_health_records/utils/show_exercise_route_dialog.dart';
+import 'package:health_connector_toolbox/src/features/read_health_records/utils/show_exercise_session_active_energy_dialog.dart';
 import 'package:health_connector_toolbox/src/features/read_health_records/widgets/health_record_detail_row.dart';
 import 'package:health_connector_toolbox/src/features/read_health_records/widgets/health_record_list_tiles/health_record_list_tile_subtitle.dart';
 import 'package:health_connector_toolbox/src/features/read_health_records/widgets/health_record_list_tiles/interval_health_record_list_tiles/interval_health_record_list_tile.dart';
@@ -150,15 +151,35 @@ final class ExerciseSessionTile extends StatelessWidget {
       icon: AppIcons.fitnessCenter,
       title: title,
       actions: [
-        IconButton(
-          icon: Icon(
-            AppIcons.route,
-            color: Theme.of(context).colorScheme.primary,
-            size: 22,
-          ),
-          tooltip: AppTexts.loadRoute,
-          onPressed: () => _onReadRoute(context),
-          visualDensity: VisualDensity.compact,
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: Icon(
+                AppIcons.route,
+                color: Theme.of(context).colorScheme.primary,
+                size: 22,
+              ),
+              tooltip: AppTexts.loadRoute,
+              onPressed: () => _onReadRoute(context),
+              visualDensity: VisualDensity.compact,
+            ),
+            IconButton(
+              icon: Icon(
+                AppIcons.energy,
+                color: Theme.of(context).colorScheme.primary,
+                size: 22,
+              ),
+              tooltip: AppTexts.loadWorkoutActiveEnergy,
+              onPressed: () => showExerciseSessionActiveEnergyDialog(
+                context,
+                exerciseSession: record,
+                loadActiveEnergy: () =>
+                    notifier.aggregateExerciseSessionActiveEnergy(record),
+              ),
+              visualDensity: VisualDensity.compact,
+            ),
+          ],
         ),
       ],
       subtitleBuilder: (r, ctx) {

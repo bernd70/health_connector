@@ -226,6 +226,85 @@ extension ExerciseSessionHandler {
 // MARK: - Aggregation
 
 extension ExerciseSessionHandler {
+    /// Aggregates the active energy associated with a saved exercise session.
+    ///
+    /// Reads the saved HealthKit workout by its UUID and returns its associated active energy
+    /// in kilocalories. On iOS 16 and higher, prefers `HKWorkout.statistics(for:)` for
+    /// `activeEnergyBurned`, then falls back to `totalEnergyBurned` when statistics are missing.
+    /// On iOS 15, uses `totalEnergyBurned`. A workout with no energy quantity returns zero.
+    ///
+    /// - Parameter exerciseSessionId: The platform-assigned UUID of the saved HealthKit workout.
+    /// - Returns: Total active energy in kilocalories, or zero when no energy is available.
+    /// - Throws: `HealthConnectorError.invalidArgument` when the ID is not a valid UUID or the
+    ///   workout does not exist.
+    /// - Throws: `HealthConnectorError` mapped from HealthKit failures during the workout query.
+    func aggregateActiveEnergy(exerciseSessionId: String) async throws -> Double {
+        try await process(
+            operation: "aggregate_active_energy",
+            context: ["exercise_session_id": exerciseSessionId]
+        ) {
+            guard let workoutUUID = UUID(uuidString: exerciseSessionId) else {
+                throw HealthConnectorError.invalidArgument(
+                    message: "Invalid UUID format: \(exerciseSessionId)"
+                )
+            }
+
+            let workout = try await self.readWorkout(uuid: workoutUUID)
+            return try self.activeEnergyKilocalories(from: workout)
+        }
+    }
+
+    /// Loads a saved HealthKit workout by UUID.
+    private func readWorkout(uuid: UUID) async throws -> HKWorkout {
+        let workoutType = HKObjectType.workoutType()
+        let predicate = HKQuery.predicateForObject(with: uuid)
+
+        let workout: HKWorkout? = try await withCheckedThrowingContinuation { continuation in
+            let query = HKSampleQuery(
+                sampleType: workoutType,
+                predicate: predicate,
+                limit: 1,
+                sortDescriptors: nil
+            ) { _, samples, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+
+                continuation.resume(returning: samples?.first as? HKWorkout)
+            }
+
+            healthStore.execute(query)
+        }
+
+        guard let workout else {
+            throw HealthConnectorError.invalidArgument(
+                message: "Record not found with ID: \(uuid.uuidString)"
+            )
+        }
+
+        return workout
+    }
+
+    /// Extracts active energy in kilocalories from a saved workout.
+    private func activeEnergyKilocalories(from workout: HKWorkout) throws -> Double {
+        if #available(iOS 16.0, *) {
+            let activeEnergyType = try HKQuantityType.make(from: .activeEnergyBurned)
+
+            if let sumQuantity = workout.statistics(for: activeEnergyType)?.sumQuantity() {
+                return sumQuantity.doubleValue(for: .kilocalorie())
+            }
+        }
+
+        return totalEnergyBurnedKilocalories(from: workout)
+    }
+
+    /// Falls back to the deprecated workout energy summary when statistics are unavailable.
+    @available(iOS, introduced: 15.0, deprecated: 16.0)
+    private func totalEnergyBurnedKilocalories(from workout: HKWorkout) -> Double {
+        workout.totalEnergyBurned?.doubleValue(for: .kilocalorie()) ?? 0.0
+    }
+
     /// Performs aggregation for exercise session records.
     ///
     /// Since HKWorkout doesn't support HKStatisticsQuery, we query all workout

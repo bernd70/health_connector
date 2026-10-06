@@ -4835,9 +4835,12 @@ enum SortOrderDto {
   timeDescending,
 }
 
-/// Request to perform aggregation on health records.
-class AggregateRequestDto {
-  AggregateRequestDto({
+/// Sealed class for all aggregation request DTOs.
+sealed class AggregateRequestDto {}
+
+/// Request to perform aggregation on health records in a time range.
+class StandardAggregateRequestDto extends AggregateRequestDto {
+  StandardAggregateRequestDto({
     required this.dataType,
     required this.aggregationMetric,
     required this.startTime,
@@ -4855,6 +4858,17 @@ class AggregateRequestDto {
 
   /// Start of time range in milliseconds since epoch (UTC), inclusive.
   final int startTime;
+}
+
+/// Request to aggregate active energy for a saved exercise session.
+class ExerciseSessionActiveEnergyAggregateRequestDto
+    extends AggregateRequestDto {
+  ExerciseSessionActiveEnergyAggregateRequestDto({
+    required this.exerciseSessionId,
+  });
+
+  /// The platform-assigned exercise session ID (HealthKit workout UUID).
+  final String exerciseSessionId;
 }
 
 /// Request to delete records.

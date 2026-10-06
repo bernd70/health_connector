@@ -1,12 +1,12 @@
 import 'package:health_connector_core/src/annotations/annotations.dart'
-    show internalUse, sinceV1_0_0, sinceV1_2_0, sinceV3_1_0;
+    show internalUse, sinceV1_0_0, sinceV1_2_0, sinceV3_1_0, sinceV3_12_0;
 import 'package:health_connector_core/src/models/health_data_types/health_data_type.dart'
     show HealthDataType;
 import 'package:health_connector_core/src/models/health_data_types/health_data_type_capabilities/aggregateable_health_data_type.dart';
 import 'package:health_connector_core/src/models/health_records/health_record.dart'
-    show ActivityIntensityType, HealthRecord;
+    show ActivityIntensityType, HealthRecord, HealthRecordId;
 import 'package:health_connector_core/src/models/measurement_units/measurement_unit.dart'
-    show MeasurementUnit, Pressure, TimeDuration;
+    show Energy, MeasurementUnit, Pressure, TimeDuration;
 import 'package:health_connector_core/src/models/requests/aggregate_requests/aggregation_metric.dart'
     show AggregationMetric;
 import 'package:health_connector_core/src/models/requests/request.dart'
@@ -17,6 +17,7 @@ import 'package:meta/meta.dart';
 
 part 'activity_intensity_aggregate_request.dart';
 part 'blood_pressure_aggregate_request.dart';
+part 'exercise_session_active_energy_aggregate_request.dart';
 part 'standard_aggregate_request.dart';
 
 /// Base request class to perform an aggregation query on health records.

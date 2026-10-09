@@ -370,6 +370,7 @@ class HealthConnectorClientTest {
                 permissionService = permissionService,
                 syncService = syncService,
                 recordHandlerRegistry = recordHandlerRegistry,
+                dataOriginService = dataOriginService,
                 supportsHealthConnectSdkExtension21 = false,
             )
         }

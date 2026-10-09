@@ -3,16 +3,20 @@ package com.phamtunglam.health_connector_hc_android.services
 import android.content.pm.PackageManager
 import com.phamtunglam.health_connector_hc_android.mappers.health_record_mappers.mapMetadata
 import com.phamtunglam.health_connector_hc_android.pigeon.HealthRecordDto
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 
 /**
  * Adds available app labels to read results without changing source identifiers.
  *
- * Each response has its own cache, including unsuccessful lookups, so locale
- * and package changes are reflected by subsequent reads.
+ * Resolved labels are reused for the lifetime of this service. Unsuccessful
+ * lookups stay local to the current response, so a later read can still resolve
+ * a package that becomes visible.
  */
 internal class HealthConnectorDataOriginService(private val packageManager: PackageManager) {
+
+    private val displayNames = ConcurrentHashMap<String, String>()
 
     suspend fun withDisplayName(record: HealthRecordDto): HealthRecordDto =
         withDisplayNames(listOf(record)).single()
@@ -25,7 +29,8 @@ internal class HealthConnectorDataOriginService(private val packageManager: Pack
             record.mapMetadata { metadata ->
                 val packageName = metadata.dataOrigin
                 if (!names.containsKey(packageName)) {
-                    names[packageName] = resolveDisplayName(packageName)
+                    names[packageName] = displayNames[packageName]
+                        ?: resolveDisplayName(packageName)?.also { displayNames[packageName] = it }
                 }
                 metadata.copy(dataOriginDisplayName = names[packageName])
             }

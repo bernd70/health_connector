@@ -156,8 +156,8 @@ class HealthConnectorDataOriginServiceTest {
     }
 
     @Test
-    @DisplayName("GIVEN a renamed app → WHEN reading again → THEN resolves the current name")
-    fun `display names are refreshed between responses`() = runTest {
+    @DisplayName("GIVEN a resolved source → WHEN reading again → THEN reuses the resolved name")
+    fun `resolved display names are reused across responses`() = runTest {
         // Given
         systemUnderTest.withDisplayName(hydration())
         every { packageManager.getApplicationLabel(appInfo) } returns "Renamed Health"
@@ -166,8 +166,8 @@ class HealthConnectorDataOriginServiceTest {
         val record = systemUnderTest.withDisplayName(hydration()) as HydrationRecordDto
 
         // Then
-        record.metadata.dataOriginDisplayName shouldBe "Renamed Health"
-        verify(exactly = 2) { packageManager.getApplicationInfo(PACKAGE_NAME, 0) }
+        record.metadata.dataOriginDisplayName shouldBe " Santé Health "
+        verify(exactly = 1) { packageManager.getApplicationInfo(PACKAGE_NAME, 0) }
     }
 
     @Test

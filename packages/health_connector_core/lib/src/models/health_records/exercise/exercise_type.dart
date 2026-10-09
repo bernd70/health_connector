@@ -887,8 +887,7 @@ enum ExerciseType {
   /// - **Android Health Connect**: Not supported
   ///
   /// Throws [UnsupportedOperationException] on Android Health Connect.
-  swimBikeRun._appleHealthOnlyIOS16()
-  ;
+  swimBikeRun._appleHealthOnlyIOS16();
 
   //endregion
 

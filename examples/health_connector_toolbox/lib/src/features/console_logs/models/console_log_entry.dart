@@ -13,8 +13,7 @@ enum ConsoleLogIsolate {
   main('main'),
 
   /// The headless background task isolate.
-  background('background')
-  ;
+  background('background');
 
   const ConsoleLogIsolate(this.id);
 

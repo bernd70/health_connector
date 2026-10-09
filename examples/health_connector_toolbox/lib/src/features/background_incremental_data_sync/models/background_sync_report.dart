@@ -14,8 +14,7 @@ enum BackgroundSyncOutcome {
   failed('failed'),
 
   /// Nothing was synchronized because no data types were selected.
-  skipped('skipped')
-  ;
+  skipped('skipped');
 
   const BackgroundSyncOutcome(this.id);
 

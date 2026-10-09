@@ -307,8 +307,7 @@ enum HealthConnectorErrorCode {
   /// - Show generic error message to user
   ///
   /// Throws [UnknownException].
-  unknownError('UNKNOWN_ERROR')
-  ;
+  unknownError('UNKNOWN_ERROR');
 
   const HealthConnectorErrorCode(this.code);
 

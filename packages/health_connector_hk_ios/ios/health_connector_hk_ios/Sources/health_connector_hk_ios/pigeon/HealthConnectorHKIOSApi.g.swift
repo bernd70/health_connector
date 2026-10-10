@@ -1248,15 +1248,46 @@ public struct OperatingSystemInfoDto: Hashable {
 /// Represents metadata for a health record.
 ///
 /// Generated class from Pigeon that represents data sent in messages.
-public struct MetadataDto: Hashable {
+public class MetadataDto: Hashable {
+  init(
+    clientRecordId: String? = nil,
+    clientRecordVersion: Int64? = nil,
+    deviceType: DeviceTypeDto,
+    recordingMethod: RecordingMethodDto,
+    dataOrigin: String,
+    deviceName: String? = nil,
+    deviceManufacturer: String? = nil,
+    deviceModel: String? = nil,
+    deviceHardwareVersion: String? = nil,
+    deviceFirmwareVersion: String? = nil,
+    deviceSoftwareVersion: String? = nil,
+    deviceLocalIdentifier: String? = nil,
+    deviceUdiDeviceIdentifier: String? = nil,
+    dataOriginDisplayName: String? = nil
+  ) {
+    self.clientRecordId = clientRecordId
+    self.clientRecordVersion = clientRecordVersion
+    self.deviceType = deviceType
+    self.recordingMethod = recordingMethod
+    self.dataOrigin = dataOrigin
+    self.deviceName = deviceName
+    self.deviceManufacturer = deviceManufacturer
+    self.deviceModel = deviceModel
+    self.deviceHardwareVersion = deviceHardwareVersion
+    self.deviceFirmwareVersion = deviceFirmwareVersion
+    self.deviceSoftwareVersion = deviceSoftwareVersion
+    self.deviceLocalIdentifier = deviceLocalIdentifier
+    self.deviceUdiDeviceIdentifier = deviceUdiDeviceIdentifier
+    self.dataOriginDisplayName = dataOriginDisplayName
+  }
   /// A custom identifier assigned by your application.
   ///
   /// Use this for client-side record tracking, deduplication, or correlation.
-  var clientRecordId: String? = nil
+  var clientRecordId: String?
   /// A version number assigned by your application.
   ///
   /// Use this to implement your own versioning or tracking logic.
-  var clientRecordVersion: Int64? = nil
+  var clientRecordVersion: Int64?
   /// The type of device that recorded the data.
   var deviceType: DeviceTypeDto
   /// The method used to record this data.
@@ -1264,25 +1295,25 @@ public struct MetadataDto: Hashable {
   /// The package name of the source app that wrote this health record.
   var dataOrigin: String
   /// The name of the device that recorded the data.
-  var deviceName: String? = nil
+  var deviceName: String?
   /// The manufacturer of the device that recorded the data.
-  var deviceManufacturer: String? = nil
+  var deviceManufacturer: String?
   /// The model of the device that recorded the data.
-  var deviceModel: String? = nil
+  var deviceModel: String?
   /// The hardware version of the device that recorded the data.
-  var deviceHardwareVersion: String? = nil
+  var deviceHardwareVersion: String?
   /// The firmware version of the device that recorded the data.
-  var deviceFirmwareVersion: String? = nil
+  var deviceFirmwareVersion: String?
   /// The software version of the device that recorded the data.
-  var deviceSoftwareVersion: String? = nil
+  var deviceSoftwareVersion: String?
   /// A local identifier for the device that recorded the data.
-  var deviceLocalIdentifier: String? = nil
+  var deviceLocalIdentifier: String?
   /// The UDI (Unique Device Identifier) for the device that recorded
   /// the data.
-  var deviceUdiDeviceIdentifier: String? = nil
+  var deviceUdiDeviceIdentifier: String?
   /// The HealthKit source's display name, when available.
   /// Ignored during writes.
-  var dataOriginDisplayName: String? = nil
+  var dataOriginDisplayName: String?
 
 
   // swift-format-ignore: AlwaysUseLowerCamelCase
@@ -1340,6 +1371,9 @@ public struct MetadataDto: Hashable {
   public static func == (lhs: MetadataDto, rhs: MetadataDto) -> Bool {
     if Swift.type(of: lhs) != Swift.type(of: rhs) {
       return false
+    }
+    if (lhs === rhs) {
+      return true
     }
     return deepEqualsHealthConnectorHKIOSApi(lhs.clientRecordId, rhs.clientRecordId) && deepEqualsHealthConnectorHKIOSApi(lhs.clientRecordVersion, rhs.clientRecordVersion) && deepEqualsHealthConnectorHKIOSApi(lhs.deviceType, rhs.deviceType) && deepEqualsHealthConnectorHKIOSApi(lhs.recordingMethod, rhs.recordingMethod) && deepEqualsHealthConnectorHKIOSApi(lhs.dataOrigin, rhs.dataOrigin) && deepEqualsHealthConnectorHKIOSApi(lhs.deviceName, rhs.deviceName) && deepEqualsHealthConnectorHKIOSApi(lhs.deviceManufacturer, rhs.deviceManufacturer) && deepEqualsHealthConnectorHKIOSApi(lhs.deviceModel, rhs.deviceModel) && deepEqualsHealthConnectorHKIOSApi(lhs.deviceHardwareVersion, rhs.deviceHardwareVersion) && deepEqualsHealthConnectorHKIOSApi(lhs.deviceFirmwareVersion, rhs.deviceFirmwareVersion) && deepEqualsHealthConnectorHKIOSApi(lhs.deviceSoftwareVersion, rhs.deviceSoftwareVersion) && deepEqualsHealthConnectorHKIOSApi(lhs.deviceLocalIdentifier, rhs.deviceLocalIdentifier) && deepEqualsHealthConnectorHKIOSApi(lhs.deviceUdiDeviceIdentifier, rhs.deviceUdiDeviceIdentifier) && deepEqualsHealthConnectorHKIOSApi(lhs.dataOriginDisplayName, rhs.dataOriginDisplayName)
   }

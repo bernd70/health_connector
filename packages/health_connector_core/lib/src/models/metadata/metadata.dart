@@ -1,5 +1,5 @@
 import 'package:health_connector_core/src/annotations/annotations.dart'
-    show sinceV1_0_0, sinceV3_12_0, internalUse;
+    show sinceV1_0_0, sinceV3_13_0, internalUse;
 import 'package:meta/meta.dart' show immutable;
 
 part 'data_origin.dart';

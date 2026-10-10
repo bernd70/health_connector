@@ -36,7 +36,7 @@ final class DataOrigin {
   /// `null`; use [packageName] as an application-level display fallback.
   ///
   /// {@category Core API}
-  @sinceV3_12_0
+  @sinceV3_13_0
   final String? displayName;
 
   @override

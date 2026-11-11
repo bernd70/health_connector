@@ -55,7 +55,7 @@ extension AggregatableQuantityHealthRecordHandler {
             guard let nextDay = calendar.date(byAdding: .day, value: 1, to: day), nextDay > day else {
                 throw HealthConnectorError.invalidArgument(message: "Cannot advance calendar day")
             }
-            let quantity = collection?.statistics(for: day).flatMap { aggregateQuantity(from: $0, for: metric) }
+            let quantity = collection?.statistics(for: day).flatMap { $0.quantity(for: metric) }
             let value = try quantity.map { try convertQuantity($0) }
             results.append(DailyAggregateResultDto(
                 startTime: Int64(day.timeIntervalSince1970 * 1000),
